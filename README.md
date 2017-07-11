@@ -1,2 +1,3 @@
-# db-bundle
-Database Symfony Bundle
+# DbBundle
+
+Symfony Bundle for MySQL/MariaDB Database

@@ -1,0 +1,10 @@
+
+services:
+    db.config:
+        class: 'DbBundle\Db\DbConfig'
+
+    # todo: setCacheItemPool
+    # todo: setLogger
+    db.manager:
+        class: 'DbBundle\Db\DbManager'
+        arguments: ['@db.config', []]
