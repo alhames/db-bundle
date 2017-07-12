@@ -1,7 +1,8 @@
 {
   "name": "alhames/db-bundle",
   "type": "symfony-bundle",
-  "description": "Symfony Bundle for MySQL/MariaDB Database",
+  "description": "Symfony DbBundle",
+  "keywords": ["mysql", "database"],
   "homepage": "https://github.com/alhames/db-bundle",
   "license": "MIT",
   "authors": [
@@ -26,12 +27,10 @@
   },
   "autoload": {
     "psr-4": {
-      "DbBundle\\": "src/"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "DbBundle\\Tests\\": "tests/"
-    }
+      "DbBundle\\": ""
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
   }
 }
