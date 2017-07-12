@@ -2,6 +2,7 @@
 
 namespace DbBundle\DependencyInjection;
 
+use DbBundle\DbBundle;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -21,7 +22,18 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->scalarNode('default_connection')
+                    ->isRequired()
                     ->defaultValue('default')
+                ->end()
+                ->scalarNode('default_database')
+                    ->isRequired()
+                    ->defaultNull()
+                ->end()
+                ->scalarNode('cache')
+                    ->defaultNull()
+                ->end()
+                ->scalarNode('logger')
+                    ->defaultNull()
                 ->end()
 
                 ->arrayNode('connections')
@@ -32,6 +44,7 @@ class Configuration implements ConfigurationInterface
                             ->scalarNode('username')->defaultValue('root')->end()
                             ->scalarNode('password')->defaultValue('')->end()
                             ->scalarNode('database')->defaultNull()->end()
+                            ->integerNode('port')->defaultValue(3306)->end()
                             ->scalarNode('charset')->defaultValue('utf8mb4')->end()
                         ->end()
                     ->end()
@@ -40,11 +53,11 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('tables')
                     ->useAttributeAsKey('alias')
                     ->prototype('array')
+                        ->treatNullLike([])
                         ->children()
-                            ->scalarNode('table')->end()
+                            ->scalarNode('table')->defaultNull()->end()
                             ->scalarNode('database')->defaultNull()->end()
                             ->scalarNode('connection')->defaultNull()->end()
-                            ->scalarNode('key')->defaultNull()->end()
                         ->end()
                     ->end()
                 ->end()

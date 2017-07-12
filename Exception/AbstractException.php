@@ -11,12 +11,12 @@ abstract class AbstractException extends \RuntimeException
     protected $alias;
 
     /**
-     * @param string          $alias
+     * @param string|null     $alias
      * @param string|null     $message
      * @param int             $code
      * @param \Exception|null $previous
      */
-    public function __construct(string $alias, string $message = null, int $code = 0, \Exception $previous = null)
+    public function __construct(string $alias = null, string $message = null, int $code = 0, \Exception $previous = null)
     {
         parent::__construct($message, $code, $previous);
 
@@ -24,9 +24,9 @@ abstract class AbstractException extends \RuntimeException
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getAlias(): string
+    public function getAlias()
     {
         return $this->alias;
     }

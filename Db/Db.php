@@ -32,4 +32,14 @@ class Db
     {
         return new DbValue($name, $operator, true);
     }
+
+    /**
+     * @param string $string
+     *
+     * @return string
+     */
+    public static function escapeLike(string $string): string
+    {
+        return addcslashes($string, '_%\\');
+    }
 }

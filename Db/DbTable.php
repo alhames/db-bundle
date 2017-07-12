@@ -28,7 +28,7 @@ class DbTable
     protected $result;
 
     /** @var string */
-    protected $method;
+    protected $method = '';
 
     /** @var string */
     protected $options;

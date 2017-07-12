@@ -61,7 +61,13 @@ class DbConnection implements LoggerAwareInterface
         }
 
         try {
-            $this->mysqli = new \mysqli($this->config['host'], $this->config['username'], $this->config['password'], $this->config['database']);
+            $this->mysqli = new \mysqli( // todo
+                $this->config['host'],
+                $this->config['username'],
+                $this->config['password'],
+                $this->config['database'] ?? '',
+                $this->config['port'] ?? 3306
+            );
         } catch (\Throwable $e) {
             throw new ConnectionException($this->alias, $e->getMessage(), $e->getCode(), $e);
         }
@@ -185,7 +191,7 @@ class DbConnection implements LoggerAwareInterface
      */
     public function escapeLike(string $string): string
     {
-        return addcslashes($string, '_%\\');
+        return Db::escapeLike($string);
     }
 
     /**
