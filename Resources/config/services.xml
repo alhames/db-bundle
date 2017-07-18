@@ -5,11 +5,13 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
 
-        <service id="db.config" class="DbBundle\Db\DbConfig" />
+        <service id="db.config" class="DbBundle\Db\DbConfig">
+            <argument type="collection" /><!-- Tables -->
+        </service>
 
         <service id="db.manager" class="DbBundle\Db\DbManager">
             <argument type="service" id="db.config" />
-            <argument type="collection" /><!-- Config -->
+            <argument type="collection" /><!-- Connections -->
             <argument>default</argument>
         </service>
 
