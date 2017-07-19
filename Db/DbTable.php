@@ -440,9 +440,25 @@ class DbTable
                 $data = array_column($this->result, $field);
             }
         } elseif ($isGroup) {
-            $data = Arr::groupByColumn($this->result, $key, $field); // todo
+            $data = [];
+
+            foreach ($this->result as $item) {
+                if (!isset($item[$key])) {
+                    continue;
+                }
+
+                $k = $item[$key];
+                if (!isset($result[$k])) {
+                    $result[$k] = [];
+                }
+
+                $result[$k][] = null !== $field ? $item[$field] : $item;
+            }
         } else {
-            $data = Arr::columnToKey($this->result, $key, $field); // todo
+            $data = array_combine(
+                array_column($this->result, $key),
+                null === $field ? $this->result : array_column($this->result, $field)
+            );
         }
 
         return $data;
