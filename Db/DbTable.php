@@ -448,11 +448,11 @@ class DbTable
                 }
 
                 $k = $item[$key];
-                if (!isset($result[$k])) {
-                    $result[$k] = [];
+                if (!isset($data[$k])) {
+                    $data[$k] = [];
                 }
 
-                $result[$k][] = null !== $field ? $item[$field] : $item;
+                $data[$k][] = null !== $field ? $item[$field] : $item;
             }
         } else {
             $data = array_combine(
