@@ -862,11 +862,11 @@ class DbTable
     }
 
     /**
-     * @param array|string $options
+     * @param array|string|null $options
      *
-     * @return string
+     * @return string|null
      */
-    protected function prepareOrderByStatement($options): string
+    protected function prepareOrderByStatement($options)
     {
         if (is_array($options)) {
             $optionsArray = [];
