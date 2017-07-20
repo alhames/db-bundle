@@ -315,7 +315,7 @@ class DbTable
     }
 
     /**
-     * @param string|array $options
+     * @param string|array|null $options
      *
      * @return static
      */
