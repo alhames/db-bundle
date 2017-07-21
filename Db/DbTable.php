@@ -621,7 +621,13 @@ class DbTable
 
             case 'update':
 
-                $query = 'UPDATE '.$this->getTable().PHP_EOL.'SET '.$this->set;
+                $query = 'UPDATE ';
+
+                if (!empty($this->options)) {
+                    $query .= $this->options.' ';
+                }
+
+                $query .= $this->getTable().PHP_EOL.'SET '.$this->set;
 
                 if (!empty($this->where)) {
                     $query .= PHP_EOL.'WHERE '.$this->where;
