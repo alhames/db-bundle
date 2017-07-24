@@ -14,7 +14,7 @@ class AbstractTestCase extends TestCase
     const PREFIX = 'test_';
 
     /** @var string */
-    protected $database = 'tests';
+    protected $database = 'test';
 
     /** @var DbManager */
     protected $dbm;
