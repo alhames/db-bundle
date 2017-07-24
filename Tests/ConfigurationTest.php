@@ -2,56 +2,64 @@
 
 namespace DbBundle\Tests;
 
-use DbBundle\DependencyInjection\Configuration;
+use DbBundle\Db\DbConfig;
+use DbBundle\Db\DbManager;
 use DbBundle\DependencyInjection\DbExtension;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class ConfigurationTest.
  */
 class ConfigurationTest extends TestCase
 {
-    /** @var array  */
-    protected static $defaultConfig = [
-        'default_connection' => 'default',
-        'default_database' => null,
-    ];
-
-    /**
-     * Some basic tests to make sure the configuration is correctly processed in
-     * the standard case.
-     */
-    public function testProcessSimpleCase()
+    public function testSimple()
     {
-        $configs = [static::$defaultConfig];
-        $config = $this->process($configs);
-
-        $this->assertArrayHasKey('default_connection', $config);
-    }
-
-    public function testExtension()
-    {
-        $loader = new DbExtension();
-        $container = new ContainerBuilder();
-        $loader->load([static::$defaultConfig], $container);
+        $container = $this->load('simple');
 
         $this->assertTrue(($container->hasDefinition('db.config')));
         $this->assertTrue(($container->hasDefinition('db.manager')));
+
+        $this->assertInstanceOf(DbConfig::class, $container->get('db.config'));
+        $this->assertInstanceOf(DbManager::class, $container->get('db.manager'));
     }
 
-    /**
-     * Processes an array of configurations and returns a compiled version.
-     *
-     * @param array $configs An array of raw configurations
-     *
-     * @return array A normalized array
-     */
-    protected function process($configs)
+    public function testConfig()
     {
-        $processor = new Processor();
+        $container = $this->load('simple', 'custom');
 
-        return $processor->processConfiguration(new Configuration(), $configs);
+        $this->assertSame(
+            ['table' => 'table1', 'database' => 'my_database', 'connection' => null],
+            $container->get('db.manager')->getConfig('table1')
+        );
+
+        $this->assertSame('`another_database`.`table_two`', $container->get('db.manager')->db('table2')->getTable());
+    }
+
+
+    /**
+     * @param string      $globalConfig
+     * @param string|null $localConfig
+     *
+     * @return ContainerBuilder
+     *
+     */
+    protected function load(string $globalConfig, string $localConfig = null)
+    {
+        $loader = new DbExtension();
+        $container = new ContainerBuilder();
+        $config = [];
+
+        $yaml = file_get_contents(__DIR__.'/Fixtures/Configuration/'.$globalConfig.'.yml');
+        $config[] = Yaml::parse($yaml)['db'];
+        if (null !== $localConfig) {
+            $yaml = file_get_contents(__DIR__.'/Fixtures/Configuration/'.$localConfig.'.yml');
+            $config[] = Yaml::parse($yaml)['db'];
+        }
+
+        $loader->load($config, $container);
+
+        return $container;
     }
 }
