@@ -23,6 +23,57 @@ class Db
     }
 
     /**
+     * @param mixed $from
+     * @param mixed $to
+     *
+     * @return DbValue
+     */
+    public static function between($from, $to): DbValue
+    {
+        return new DbValue([$from, $to], 'BETWEEN', false);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return DbValue
+     */
+    public static function less($value): DbValue
+    {
+        return new DbValue($value, '<', false);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return DbValue
+     */
+    public static function more($value): DbValue
+    {
+        return new DbValue($value, '>', false);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return DbValue
+     */
+    public static function not($value): DbValue
+    {
+        return new DbValue($value, '!=', false);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return DbValue
+     */
+    public static function like($value): DbValue
+    {
+        return new DbValue($value, 'LIKE', false);
+    }
+
+    /**
      * @param string $name
      * @param string $operator
      *
