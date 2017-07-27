@@ -2,10 +2,8 @@
 
 namespace DbBundle\DependencyInjection\Compiler;
 
-use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
@@ -33,8 +31,6 @@ class LoggerPass implements CompilerPassInterface
             return;
         }
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../../Resources/config'));
-        $loader->load('profiler.xml');
         $container->getDefinition('db.manager')->addMethodCall('setLogger', [new Reference('db.data_collector')]);
     }
 }
