@@ -23,6 +23,9 @@
     "phpunit/phpunit": "^6.2",
     "symfony/yaml": "^3.0"
   },
+  "suggest": {
+    "symfony/web-profiler-bundle": "To use the data collector."
+  },
   "support": {
     "issues": "https://github.com/alhames/db-bundle/issues"
   },

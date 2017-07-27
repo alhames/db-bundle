@@ -1,0 +1,93 @@
+{% extends 'WebProfilerBundle:Profiler:layout.html.twig' %}
+
+{% block toolbar %}
+  {% set icon %}
+    {{ include('@Db/Collector/icon.svg') }}
+    <span class="sf-toolbar-value">{{ collector.count }}</span>
+    <span class="sf-toolbar-info-piece-additional-detail">
+        <span class="sf-toolbar-label">in</span>
+        <span class="sf-toolbar-value">{{ '%0.2f'|format(collector.time * 1000) }}</span>
+        <span class="sf-toolbar-label">ms</span>
+    </span>
+  {% endset %}
+
+  {% set text %}
+    <div class="sf-toolbar-info-piece">
+      <b>Database Queries</b>
+      <span class="sf-toolbar-status {{ collector.count > 50 ? 'sf-toolbar-status-yellow' : '' }}">{{ collector.count }}</span>
+    </div>
+    <div class="sf-toolbar-info-piece">
+      <b>Query time</b>
+      <span class="sf-toolbar-status {{ collector.time > 0.1 ? 'sf-toolbar-status-yellow' : '' }}">
+        {{ '%0.2f'|format(collector.time * 1000) }} ms
+      </span>
+    </div>
+    <div class="sf-toolbar-info-piece">
+      <b>Cache hits</b>
+      <span class="sf-toolbar-status">{{ collector.cacheHitsCount }}</span>
+    </div>
+  {% endset %}
+
+  {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { link: true, status: collector.time > 0.1 ? 'yellow' : '' }) }}
+{% endblock %}
+
+{% block menu %}
+  <span class="label {{ collector.count == 0 ? 'disabled' }}">
+    <span class="icon">{{ include('@Db/Collector/icon.svg') }}</span>
+    <strong>Database</strong>
+  </span>
+{% endblock %}
+
+{% block panel %}
+  <h2>Metrics</h2>
+
+  <div class="metrics">
+    <div class="metric">
+      <span class="value">{{ collector.count }}</span>
+      <span class="label">Query count</span>
+    </div>
+
+    <div class="metric">
+      <span class="value">{{ '%0.2f'|format(collector.time * 1000) }} ms</span>
+      <span class="label">Query time</span>
+    </div>
+
+    <div class="metric">
+      <span class="value">{{ collector.cacheHitsCount }}</span>
+      <span class="label">Cache hits</span>
+    </div>
+  </div>
+
+  <h2>Queries</h2>
+  <table>
+    <thead>
+    <tr>
+      <th>Alias</th>
+      <th>Query</th>
+      <th>Cached</th>
+      <th class="nowrap">Time</th>
+      <th class="nowrap">Started at</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for query in collector.queries %}
+      <tr>
+        <td class="font-normal text-small text-bold">{{ query.alias }}</td>
+        <td class="font-normal text-small" style="white-space: pre-wrap;">{{ query.query }}</td>
+        <td class="font-normal text-small">{{ query.is_cached ? 'Yes' : 'No' }}</td>
+        <td class="font-normal text-small" style="white-space: nowrap;">
+          {{ '%0.2f'|format(query.query_time * 1000) }}
+          {% if query.connect_time > 0.00001 %}
+            <span class="text-muted text-small" title="Connect time">(+{{ '%0.2f'|format(query.connect_time * 1000) }})</span>
+          {% endif %}
+          ms
+        </td>
+        <td class="font-normal text-small">
+          {% set startedAt = query.started_at|split('.') %}
+          {{ startedAt[0]|date('H:i:s') }}<span class="text-muted text-small" title="Connect time">:{{ startedAt[1] }}</span>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

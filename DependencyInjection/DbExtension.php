@@ -32,16 +32,13 @@ class DbExtension extends Extension
 
         $dbManagerDefinition->replaceArgument(2, $config['default_connection']);
 
-        if (!empty($config['cache'])) { // todo: check
+        if (!empty($config['cache'])) {
             $dbManagerDefinition->addMethodCall('setCacheItemPool', [new Reference($config['cache'])]);
         }
 
-        if (!empty($config['logger'])) { // todo: check
-            $dbManagerDefinition->addMethodCall('setLogger', [new Reference($config['logger'])]);
-        }
+        $container->setParameter('db.logger', $config['logger']);
 
         if (!empty($config['tables'])) {
-
             foreach ($config['tables'] as $alias => &$table) {
                 if (null === $table['table']) {
                     $table['table'] = $alias;
