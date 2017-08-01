@@ -35,6 +35,9 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('logger')
                     ->defaultNull()
                 ->end()
+                ->scalarNode('query_formatter')
+                    ->defaultNull()
+                ->end()
 
                 ->arrayNode('connections')
                     ->useAttributeAsKey('alias')

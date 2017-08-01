@@ -37,6 +37,10 @@ class DbExtension extends Extension
             $dbManagerDefinition->addMethodCall('setCacheItemPool', [new Reference($config['cache'])]);
         }
 
+        if (!empty($config['query_formatter'])) {
+            $dbManagerDefinition->addMethodCall('setQueryFormatter', [new Reference($config['query_formatter'])]);
+        }
+
         $container->setParameter('db.logger', $config['logger']);
 
         if (!empty($config['tables'])) {

@@ -26,6 +26,9 @@ class DbManager implements LoggerAwareInterface
     /** @var CacheItemPoolInterface */
     protected $cacheItemPool;
 
+    /** @var DbQueryFormatterInterface */
+    protected $queryFormatter;
+
     /** @var DbConnection[] */
     protected $connections = [];
 
@@ -49,6 +52,18 @@ class DbManager implements LoggerAwareInterface
     public function setCacheItemPool(CacheItemPoolInterface $cacheItemPool)
     {
         $this->cacheItemPool = $cacheItemPool;
+
+        return $this;
+    }
+
+    /**
+     * @param DbQueryFormatterInterface $queryFormatter
+     *
+     * @return static
+     */
+    public function setQueryFormatter(DbQueryFormatterInterface $queryFormatter)
+    {
+        $this->queryFormatter = $queryFormatter;
 
         return $this;
     }
@@ -118,6 +133,9 @@ class DbManager implements LoggerAwareInterface
         }
         if (null !== $this->logger) {
             $this->connections[$alias]->setLogger($this->logger);
+        }
+        if (null !== $this->queryFormatter) {
+            $this->connections[$alias]->setQueryFormatter($this->queryFormatter);
         }
 
         return $this->connections[$alias];

@@ -30,6 +30,9 @@ class DbConnection implements LoggerAwareInterface
     /** @var bool */
     protected $connected;
 
+    /** @var DbQueryFormatterInterface */
+    protected $queryFormatter;
+
     /**
      * @param array  $config
      * @param string $alias
@@ -61,7 +64,7 @@ class DbConnection implements LoggerAwareInterface
         }
 
         try {
-            $this->mysqli = new \mysqli( // todo
+            $this->mysqli = new \mysqli(
                 $this->config['host'],
                 $this->config['username'],
                 $this->config['password'],
@@ -95,6 +98,18 @@ class DbConnection implements LoggerAwareInterface
     }
 
     /**
+     * @param DbQueryFormatterInterface $queryFormatter
+     *
+     * @return static
+     */
+    public function setQueryFormatter(DbQueryFormatterInterface $queryFormatter)
+    {
+        $this->queryFormatter = $queryFormatter;
+
+        return $this;
+    }
+
+    /**
      * @param string      $query
      * @param string|null $cacheKey
      * @param int|null    $cacheTime    Timeout in seconds, must be greater than 0.
@@ -117,7 +132,7 @@ class DbConnection implements LoggerAwareInterface
         }
 
         if (!$isCached) {
-            $ipInfo = sprintf("/* %s */\n", isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'cli'); // todo
+            $formattedQuery = null !== $this->queryFormatter ? $this->queryFormatter->format($query, $cacheKey, $cacheTime) : $query;
 
             // Connect
             $connectTime = microtime(true);
@@ -126,7 +141,7 @@ class DbConnection implements LoggerAwareInterface
 
             // Query
             $queryTime = microtime(true);
-            $queryResult = $this->mysqli->query($ipInfo.$query);
+            $queryResult = $this->mysqli->query($formattedQuery);
             $queryTime = microtime(true) - $queryTime;
 
             // Reconnect
@@ -136,7 +151,7 @@ class DbConnection implements LoggerAwareInterface
                 $connectTime = microtime(true) - $reconnectTime + $connectTime;
 
                 $queryTimeAfterReconnect = microtime(true);
-                $queryResult = $this->mysqli->query($ipInfo.$query);
+                $queryResult = $this->mysqli->query($formattedQuery);
                 $queryTime = microtime(true) - $queryTimeAfterReconnect + $queryTime;
             }
 
