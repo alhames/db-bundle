@@ -42,6 +42,7 @@ class DbManager implements LoggerAwareInterface
         $this->dbConfig = $dbConfig;
         $this->config = $config;
         $this->defaultConnection = $defaultConnection;
+        mysqli_report(MYSQLI_REPORT_STRICT);
     }
 
     /**

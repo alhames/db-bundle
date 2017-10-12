@@ -15,6 +15,8 @@ class DbConnection implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
+    const CR_SERVER_GONE_ERROR = 2006;
+
     /** @var array */
     protected $config;
 
@@ -76,10 +78,19 @@ class DbConnection implements LoggerAwareInterface
         }
 
         if ($this->mysqli->connect_errno) {
-            throw new ConnectionException($this->alias, $this->mysqli->connect_error, (int) $this->mysqli->connect_errno);
+            throw new ConnectionException($this->alias, $this->mysqli->connect_error, $this->mysqli->connect_errno);
         }
 
-        $this->mysqli->set_charset($this->config['charset']);
+        try {
+            $successSet = $this->mysqli->set_charset($this->config['charset']);
+        } catch (\Throwable $e) {
+            throw $this->createException(null, $e);
+        }
+
+        if (!$successSet) {
+            throw $this->createException();
+        }
+
         $this->connected = true;
 
         return $this;
@@ -141,17 +152,27 @@ class DbConnection implements LoggerAwareInterface
 
             // Query
             $queryTime = microtime(true);
-            $queryResult = $this->mysqli->query($formattedQuery);
+            try {
+                $queryResult = $this->mysqli->query($formattedQuery);
+            } catch (\Throwable $e) {
+                if (self::CR_SERVER_GONE_ERROR !== $this->mysqli->errno) {
+                    throw $this->createException($query, $e);
+                }
+            }
             $queryTime = microtime(true) - $queryTime;
 
             // Reconnect
-            if (2006 == $this->mysqli->errno) {
+            if (self::CR_SERVER_GONE_ERROR === $this->mysqli->errno) {
                 $reconnectTime = microtime(true);
                 $this->reconnect();
                 $connectTime = microtime(true) - $reconnectTime + $connectTime;
 
                 $queryTimeAfterReconnect = microtime(true);
-                $queryResult = $this->mysqli->query($formattedQuery);
+                try {
+                    $queryResult = $this->mysqli->query($formattedQuery);
+                } catch (\Throwable $e) {
+                    throw $this->createException($query, $e);
+                }
                 $queryTime = microtime(true) - $queryTimeAfterReconnect + $queryTime;
             }
 
@@ -171,7 +192,7 @@ class DbConnection implements LoggerAwareInterface
                     );
                 }
             } elseif (true !== $queryResult) {
-                throw new ExecutionException($this->alias, $this->mysqli->error, (int) $this->mysqli->errno, null, $query);
+                throw $this->createException($query);
             }
         }
 
@@ -268,11 +289,11 @@ class DbConnection implements LoggerAwareInterface
         $this->connect();
 
         if (!$this->mysqli->autocommit(false)) {
-            throw new ExecutionException($this->alias, $this->mysqli->error, (int) $this->mysqli->errno, null, 'AUTOCOMMIT=0');
+            throw $this->createException('AUTOCOMMIT=0');
         }
 
         if (!$this->mysqli->begin_transaction()) {
-            throw new ExecutionException($this->alias, $this->mysqli->error, (int) $this->mysqli->errno, null, 'BEGIN TRANSACTION');
+            throw $this->createException('BEGIN TRANSACTION');
         }
     }
 
@@ -284,11 +305,11 @@ class DbConnection implements LoggerAwareInterface
         $this->connect();
 
         if (!$this->mysqli->commit()) {
-            throw new ExecutionException($this->alias, $this->mysqli->error, (int) $this->mysqli->errno, null, 'COMMIT');
+            throw $this->createException('COMMIT');
         }
 
         if (!$this->mysqli->autocommit(true)) {
-            throw new ExecutionException($this->alias, $this->mysqli->error, (int) $this->mysqli->errno, null, 'AUTOCOMMIT=1');
+            throw $this->createException('AUTOCOMMIT=1');
         }
     }
 
@@ -300,11 +321,22 @@ class DbConnection implements LoggerAwareInterface
         $this->connect();
 
         if (!$this->mysqli->rollback()) {
-            throw new ExecutionException($this->alias, $this->mysqli->error, (int) $this->mysqli->errno, null, 'ROLLBACK');
+            throw $this->createException('ROLLBACK');
         }
 
         if (!$this->mysqli->autocommit(true)) {
-            throw new ExecutionException($this->alias, $this->mysqli->error, (int) $this->mysqli->errno, null, 'AUTOCOMMIT=1');
+            throw $this->createException('AUTOCOMMIT=1');
         }
+    }
+
+    /**
+     * @param string|null     $query
+     * @param \Throwable|null $exception
+     *
+     * @return ExecutionException
+     */
+    protected function createException(string $query = null, \Throwable $exception = null): ExecutionException
+    {
+        return new ExecutionException($this->alias, $this->mysqli->error, $this->mysqli->errno, $exception, $query);
     }
 }
