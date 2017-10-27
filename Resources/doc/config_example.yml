@@ -1,0 +1,19 @@
+db:
+  default_connection: 'default'
+  default_database: '%project_name%'
+  cache: 'app.cache'
+  query_formatter: 'app.db.query_formatter'
+  connections:
+    default:
+      host: '%project_host%'
+      username: '%project_user%'
+      password: '%project_pass%'
+      database: '%project_name%'
+  tables:
+    comment: ~
+    post: ~
+    user: ~
+    news:
+      table: 'table_name'
+      database: '%project_name%'
+      connection: 'default'

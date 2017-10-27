@@ -2,6 +2,8 @@
 
 namespace DbBundle\DependencyInjection;
 
+use DbBundle\Db\DbConfig;
+use DbBundle\Db\DbManager;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader;
@@ -23,15 +25,14 @@ class DbExtension extends Extension
 
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
-        $loader->load('profiler.xml');
 
-        $dbManagerDefinition = $container->getDefinition('db.manager');
+        $dbManagerDefinition = $container->getDefinition(DbManager::class);
 
         if (!empty($config['connections'])) {
-            $dbManagerDefinition->replaceArgument(1, $config['connections']);
+            $dbManagerDefinition->setArgument('$config', $config['connections']);
         }
 
-        $dbManagerDefinition->replaceArgument(2, $config['default_connection']);
+        $dbManagerDefinition->setArgument('$defaultConnection', $config['default_connection']);
 
         if (!empty($config['cache'])) {
             $dbManagerDefinition->addMethodCall('setCacheItemPool', [new Reference($config['cache'])]);
@@ -54,7 +55,7 @@ class DbExtension extends Extension
             }
             unset($table);
 
-            $container->getDefinition('db.config')->replaceArgument(0, $config['tables']);
+            $container->getDefinition(DbConfig::class)->setArgument('$tables', $config['tables']);
         }
     }
 }

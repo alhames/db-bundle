@@ -15,7 +15,7 @@
   "require": {
     "php": "^7.0",
     "ext-mysqli": "*",
-    "symfony/framework-bundle": "^3.0",
+    "symfony/framework-bundle": "^3.3",
     "psr/log": "^1.0",
     "psr/cache": "^1.0"
   },

@@ -2,6 +2,8 @@
 
 namespace DbBundle\DependencyInjection\Compiler;
 
+use DbBundle\DataCollector\DbDataCollector;
+use DbBundle\Db\DbManager;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
@@ -24,13 +26,13 @@ class LoggerPass implements CompilerPassInterface
         }
 
         if (null !== $logger) {
-            $container->getDefinition('db.manager')->addMethodCall('setLogger', [new Reference($logger)]);
+            $container->getDefinition(DbManager::class)->addMethodCall('setLogger', [new Reference($logger)]);
         }
 
         if (false === $container->hasExtension('web_profiler')) {
             return;
         }
 
-        $container->getDefinition('db.manager')->addMethodCall('setLogger', [new Reference('db.data_collector')]);
+        $container->getDefinition(DbManager::class)->addMethodCall('setLogger', [new Reference(DbDataCollector::class)]);
     }
 }
