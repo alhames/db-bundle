@@ -17,11 +17,7 @@ class ConfigurationTest extends TestCase
     public function testSimple()
     {
         $container = $this->load('simple');
-
-        $this->assertTrue(($container->hasDefinition('db.config')));
         $this->assertTrue(($container->hasDefinition('db.manager')));
-
-        $this->assertInstanceOf(DbConfig::class, $container->get('db.config'));
         $this->assertInstanceOf(DbManager::class, $container->get('db.manager'));
     }
 
