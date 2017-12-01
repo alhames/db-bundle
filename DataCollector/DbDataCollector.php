@@ -69,4 +69,12 @@ class DbDataCollector extends AbstractLogger implements DataCollectorInterface
     {
         return $this->data;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function reset()
+    {
+        $this->data = [];
+    }
 }
