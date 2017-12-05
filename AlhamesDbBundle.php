@@ -1,15 +1,15 @@
 <?php
 
-namespace DbBundle;
+namespace Alhames\DbBundle;
 
-use DbBundle\DependencyInjection\Compiler\LoggerPass;
+use Alhames\DbBundle\DependencyInjection\Compiler\LoggerPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
  * Class DbBundle.
  */
-class DbBundle extends Bundle
+class AlhamesDbBundle extends Bundle
 {
     /**
      * {@inheritdoc}

@@ -1,6 +1,6 @@
 <?php
 
-use DbBundle\Db\Db;
+use Alhames\DbBundle\Db\Db;
 
 return [
     ['*'],

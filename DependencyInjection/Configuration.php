@@ -1,8 +1,7 @@
 <?php
 
-namespace DbBundle\DependencyInjection;
+namespace Alhames\DbBundle\DependencyInjection;
 
-use DbBundle\DbBundle;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -17,7 +16,7 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('db');
+        $rootNode = $treeBuilder->root('alhames_db');
 
         $rootNode
             ->children()

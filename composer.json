@@ -1,8 +1,8 @@
 {
   "name": "alhames/db-bundle",
   "type": "symfony-bundle",
-  "description": "Symfony DbBundle",
-  "keywords": ["mysql", "database"],
+  "description": "Symfony AlhamesDbBundle",
+  "keywords": ["mysql", "database", "bundle", "symfony"],
   "homepage": "https://github.com/alhames/db-bundle",
   "license": "MIT",
   "authors": [
@@ -15,7 +15,7 @@
   "require": {
     "php": "^7.0",
     "ext-mysqli": "*",
-    "symfony/framework-bundle": "^3.3",
+    "symfony/framework-bundle": "^3.3 | ^4.0",
     "psr/log": "^1.0",
     "psr/cache": "^1.0"
   },
@@ -31,7 +31,7 @@
   },
   "autoload": {
     "psr-4": {
-      "DbBundle\\": ""
+      "Alhames\\DbBundle\\": ""
     },
     "exclude-from-classmap": [
       "/Tests/"

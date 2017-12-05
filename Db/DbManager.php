@@ -1,8 +1,8 @@
 <?php
 
-namespace DbBundle\Db;
+namespace Alhames\DbBundle\Db;
 
-use DbBundle\Exception\DbException;
+use Alhames\DbBundle\Exception\DbException;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;

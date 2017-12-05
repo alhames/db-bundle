@@ -1,10 +1,10 @@
 <?php
 
-namespace DbBundle\Tests;
+namespace Alhames\DbBundle\Tests;
 
-use DbBundle\Db\DbConfig;
-use DbBundle\Db\DbManager;
-use DbBundle\DependencyInjection\DbExtension;
+use Alhames\DbBundle\Db\DbConfig;
+use Alhames\DbBundle\Db\DbManager;
+use Alhames\DbBundle\DependencyInjection\DbExtension;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Yaml\Yaml;

@@ -1,6 +1,6 @@
 <?php
 
-namespace DbBundle\Db;
+namespace Alhames\DbBundle\Db;
 
 /**
  * Class Db.

@@ -1,9 +1,9 @@
 <?php
 
-namespace DbBundle\Tests;
+namespace Alhames\DbBundle\Tests;
 
-use DbBundle\Db\DbConfig;
-use DbBundle\Db\DbManager;
+use Alhames\DbBundle\Db\DbConfig;
+use Alhames\DbBundle\Db\DbManager;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -58,7 +58,7 @@ class AbstractTestCase extends TestCase
     /**
      * @param string $table
      *
-     * @return \DbBundle\Db\DbTable
+     * @return \Alhames\DbBundle\Db\DbTable
      */
     protected function db($table = 'test')
     {

@@ -1,9 +1,9 @@
 <?php
 
-namespace DbBundle\DependencyInjection;
+namespace Alhames\DbBundle\DependencyInjection;
 
-use DbBundle\Db\DbConfig;
-use DbBundle\Db\DbManager;
+use Alhames\DbBundle\Db\DbConfig;
+use Alhames\DbBundle\Db\DbManager;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader;
@@ -42,7 +42,7 @@ class DbExtension extends Extension
             $dbManagerDefinition->addMethodCall('setQueryFormatter', [new Reference($config['query_formatter'])]);
         }
 
-        $container->setParameter('db.logger', $config['logger']);
+        $container->setParameter('alhames_db.logger', $config['logger']);
 
         if (!empty($config['tables'])) {
             foreach ($config['tables'] as $alias => &$table) {

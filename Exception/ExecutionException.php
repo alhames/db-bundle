@@ -1,6 +1,6 @@
 <?php
 
-namespace DbBundle\Exception;
+namespace Alhames\DbBundle\Exception;
 
 /**
  * Class ExecutionException.

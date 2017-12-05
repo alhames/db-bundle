@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace DbBundle\Tests;
+namespace Alhames\DbBundle\Tests;
 
-use DbBundle\Db\Db;
-use DbBundle\Db\DbTable;
+use Alhames\DbBundle\Db\Db;
+use Alhames\DbBundle\Db\DbTable;
 
 /**
  * Class DbTableTest.
@@ -40,7 +40,7 @@ class DbTableTest extends AbstractTestCase
     }
 
     /**
-     * @expectedException \DbBundle\Exception\DbException
+     * @expectedException \Alhames\DbBundle\Exception\DbException
      */
     public function testTruncateException()
     {
@@ -306,7 +306,7 @@ class DbTableTest extends AbstractTestCase
     }
 
     /**
-     * @expectedException \DbBundle\Exception\DbException
+     * @expectedException \Alhames\DbBundle\Exception\DbException
      */
     public function testUpdateException()
     {
@@ -333,7 +333,7 @@ class DbTableTest extends AbstractTestCase
     }
 
     /**
-     * @expectedException \DbBundle\Exception\DbException
+     * @expectedException \Alhames\DbBundle\Exception\DbException
      */
     public function testDeleteException()
     {

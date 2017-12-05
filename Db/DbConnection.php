@@ -1,9 +1,9 @@
 <?php
 
-namespace DbBundle\Db;
+namespace Alhames\DbBundle\Db;
 
-use DbBundle\Exception\ConnectionException;
-use DbBundle\Exception\ExecutionException;
+use Alhames\DbBundle\Exception\ConnectionException;
+use Alhames\DbBundle\Exception\ExecutionException;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -123,10 +123,11 @@ class DbConnection implements LoggerAwareInterface
     /**
      * @param string      $query
      * @param string|null $cacheKey
-     * @param int|null    $cacheTime    Timeout in seconds, must be greater than 0.
+     * @param int|null    $cacheTime Timeout in seconds, must be greater than 0.
      * @param bool        $cacheRebuild
      *
      * @return array
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function query(string $query, string $cacheKey = null, int $cacheTime = null, bool $cacheRebuild = false): array
     {

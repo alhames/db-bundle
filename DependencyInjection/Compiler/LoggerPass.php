@@ -1,9 +1,9 @@
 <?php
 
-namespace DbBundle\DependencyInjection\Compiler;
+namespace Alhames\DbBundle\DependencyInjection\Compiler;
 
-use DbBundle\DataCollector\DbDataCollector;
-use DbBundle\Db\DbManager;
+use Alhames\DbBundle\DataCollector\DbDataCollector;
+use Alhames\DbBundle\Db\DbManager;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
@@ -18,8 +18,8 @@ class LoggerPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        $logger = $container->getParameter('db.logger');
-        $container->getParameterBag()->remove('db.logger');
+        $logger = $container->getParameter('alhames_db.logger');
+        $container->getParameterBag()->remove('alhames_db.logger');
 
         if (false === $logger) {
             return;
@@ -27,6 +27,8 @@ class LoggerPass implements CompilerPassInterface
 
         if (null !== $logger) {
             $container->getDefinition(DbManager::class)->addMethodCall('setLogger', [new Reference($logger)]);
+
+            return;
         }
 
         if (false === $container->hasExtension('web_profiler')) {

@@ -7,12 +7,12 @@
 >
   <services>
     <defaults autowire="true" autoconfigure="true" public="false" />
-    <service id="DbBundle\Db\DbConfig" />
-    <service id="DbBundle\Db\DbManager" />
-    <service id="db.config" alias="DbBundle\Db\DbConfig" />
-    <service id="db.manager" alias="DbBundle\Db\DbManager" public="true" />
-    <service id="DbBundle\DataCollector\DbDataCollector">
-      <tag name="data_collector" template="@Db/Collector/db.html.twig" id="db" priority="250"/>
+    <service id="Alhames\DbBundle\Db\DbConfig" />
+    <service id="Alhames\DbBundle\Db\DbManager" />
+    <service id="alhames_db.config" alias="Alhames\DbBundle\Db\DbConfig" />
+    <service id="alhames_db.manager" alias="Alhames\DbBundle\Db\DbManager" public="true" />
+    <service id="Alhames\DbBundle\DataCollector\DbDataCollector">
+      <tag name="data_collector" template="@AlhamesDb/Collector/alhames_db.html.twig" id="alhames_db" priority="250"/>
     </service>
   </services>
 </container>

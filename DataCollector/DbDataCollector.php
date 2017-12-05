@@ -1,6 +1,6 @@
 <?php
 
-namespace DbBundle\DataCollector;
+namespace Alhames\DbBundle\DataCollector;
 
 use Psr\Log\AbstractLogger;
 use Symfony\Component\HttpFoundation\Request;

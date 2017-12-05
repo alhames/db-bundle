@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace DbBundle\Tests;
+namespace Alhames\DbBundle\Tests;
 
-use DbBundle\Db\Db;
+use Alhames\DbBundle\Db\Db;
 
 /**
  * Class RequestTest.
