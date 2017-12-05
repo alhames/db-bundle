@@ -17,8 +17,8 @@ class ConfigurationTest extends TestCase
     public function testSimple()
     {
         $container = $this->load('simple');
-        $this->assertTrue(($container->hasDefinition('db.manager')));
-        $this->assertInstanceOf(DbManager::class, $container->get('db.manager'));
+        $this->assertTrue($container->hasDefinition('alhames_db.manager'));
+        $this->assertInstanceOf(DbManager::class, $container->get('alhames_db.manager'));
     }
 
     public function testConfig()
@@ -27,10 +27,10 @@ class ConfigurationTest extends TestCase
 
         $this->assertSame(
             ['table' => 'table1', 'database' => 'my_database', 'connection' => null],
-            $container->get('db.manager')->getConfig('table1')
+            $container->get('alhames_db.manager')->getConfig('table1')
         );
 
-        $this->assertSame('`another_database`.`table_two`', $container->get('db.manager')->db('table2')->getTable());
+        $this->assertSame('`another_database`.`table_two`', $container->get('alhames_db.manager')->db('table2')->getTable());
     }
 
 
