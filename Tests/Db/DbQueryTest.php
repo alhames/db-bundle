@@ -357,6 +357,12 @@ class DbQueryTest extends AbstractTestCase
         ]);
     }
 
+    public function testOffset()
+    {
+        $db = $this->db()->select()->offset(2);
+        $this->assertSame('SELECT *'.PHP_EOL.'FROM '.$this->getTable().' AS self'.PHP_EOL.'OFFSET 2', $db->getQuery());
+    }
+
     public function testLimit()
     {
         $db = $this->db()->select();
@@ -365,14 +371,8 @@ class DbQueryTest extends AbstractTestCase
         $db->limit(1);
         $this->assertSame($expectedPrefix.'1', $db->getQuery());
 
-        $db->limit(1, 2);
-        $this->assertSame($expectedPrefix.'1, 2', $db->getQuery());
-
-        $db->limit(0, 1000);
-        $this->assertSame($expectedPrefix.'0, 1000', $db->getQuery());
-
-        $db->limit(100, null);
-        $this->assertSame($expectedPrefix.'100', $db->getQuery());
+        $db->limit(100)->offset(200);
+        $this->assertSame($expectedPrefix.'100'.PHP_EOL.'OFFSET 200', $db->getQuery());
     }
 
     public function testSetPage()
@@ -381,7 +381,8 @@ class DbQueryTest extends AbstractTestCase
         $this->assertDbQuery($db, [
             'SELECT *',
             'FROM '.$this->getTable().' AS self',
-            'LIMIT 20, 10',
+            'LIMIT 10',
+            'OFFSET 20',
         ]);
     }
 

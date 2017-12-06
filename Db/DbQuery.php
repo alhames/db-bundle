@@ -54,11 +54,11 @@ class DbQuery
     /** @var string */
     protected $having;
 
-    /** @var string */
+    /** @var int */
     protected $limit;
 
     /** @var int */
-    protected $count;
+    protected $offset;
 
     /** @var string */
     protected $set;
@@ -356,21 +356,25 @@ class DbQuery
     }
 
     /**
-     * @param int      $offset
-     * @param int|null $count
+     * @param int $limit
      *
      * @return static
      */
-    public function limit(int $offset, int $count = null)
+    public function limit(int $limit)
     {
-        $this->limit = intval($offset);
+        $this->limit = $limit;
 
-        if (null !== $count) {
-            $this->count = intval($count);
-            $this->limit .= ', '.$this->count;
-        } else {
-            $this->count = $this->limit;
-        }
+        return $this;
+    }
+
+    /**
+     * @param int $offset
+     *
+     * @return static
+     */
+    public function offset(int $offset)
+    {
+        $this->offset = $offset;
 
         return $this;
     }
@@ -383,7 +387,8 @@ class DbQuery
      */
     public function setPage(int $page, int $count)
     {
-        $this->limit(($page - 1) * $count, $count);
+        $this->offset = ($page - 1) * $count;
+        $this->limit = $count;
 
         return $this;
     }
@@ -503,7 +508,7 @@ class DbQuery
      */
     public function getPageCount(): int
     {
-        return (int) ceil($this->getRowCount() / $this->count);
+        return (int) ceil($this->getRowCount() / $this->limit);
     }
 
     /**
@@ -585,6 +590,10 @@ class DbQuery
                     $query .= PHP_EOL.'LIMIT '.$this->limit;
                 }
 
+                if (!empty($this->offset)) {
+                    $query .= PHP_EOL.'OFFSET '.$this->offset;
+                }
+
                 return $query;
 
             case 'insert':
@@ -643,6 +652,10 @@ class DbQuery
                     $query .= PHP_EOL.'LIMIT '.$this->limit;
                 }
 
+                if (!empty($this->offset)) {
+                    $query .= PHP_EOL.'OFFSET '.$this->offset;
+                }
+
                 return $query;
 
             case 'replace':
@@ -679,6 +692,10 @@ class DbQuery
 
                 if (!empty($this->limit)) {
                     $query .= PHP_EOL.'LIMIT '.$this->limit;
+                }
+
+                if (!empty($this->offset)) {
+                    $query .= PHP_EOL.'OFFSET '.$this->offset;
                 }
 
                 return $query;
