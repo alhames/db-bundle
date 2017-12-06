@@ -7,7 +7,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
- * Class DbBundle.
+ * Class AlhamesDbBundle.
  */
 class AlhamesDbBundle extends Bundle
 {

@@ -12,7 +12,7 @@
   </php>
 
   <testsuites>
-    <testsuite name="DbBundle test suite">
+    <testsuite name="AlhamesDbBundle test suite">
       <directory>./Tests</directory>
     </testsuite>
   </testsuites>

@@ -35,7 +35,7 @@ class DbDataCollector extends AbstractLogger implements DataCollectorInterface
      */
     public function getName()
     {
-        return 'db';
+        return 'alhames_db';
     }
 
     /**
