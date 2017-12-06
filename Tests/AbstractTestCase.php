@@ -5,39 +5,30 @@ namespace Alhames\DbBundle\Tests;
 use Alhames\DbBundle\Db\DbConfig;
 use Alhames\DbBundle\Db\DbManager;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class AbstractTestCase.
  */
-class AbstractTestCase extends TestCase
+abstract class AbstractTestCase extends TestCase
 {
-    const PREFIX = 'test_';
-
-    /** @var string */
-    protected $database = 'test';
-
     /** @var DbManager */
     protected $dbm;
 
     protected function setUp()
     {
-        $this->database = $GLOBALS['db_database'] ?? $this->database;
+        $config = $this->getConfig('test');
+        $config['connections']['test'] = [
+            'host' => $GLOBALS['db_host'],
+            'username' => $GLOBALS['db_username'],
+            'password' => $GLOBALS['db_password'],
+            'database' => 'test',
+            'port' => $GLOBALS['db_port'] ?? 3306,
+            'charset' => 'utf8mb4',
+        ];
 
-        $dbc = new DbConfig([
-            'test' => ['table' => self::PREFIX.'test', 'database' => $this->database],
-            'table1' => ['table' => self::PREFIX.'table1', 'database' => $this->database],
-            'table2' => ['table' => self::PREFIX.'table2', 'database' => $this->database],
-        ]);
-        $this->dbm = new DbManager($dbc, [
-            'default' => [
-                'host' => $GLOBALS['db_host'],
-                'username' => $GLOBALS['db_username'],
-                'password' => $GLOBALS['db_password'],
-                'database' => $this->database,
-                'port' => $GLOBALS['db_port'] ?? 3306,
-                'charset' => 'utf8mb4',
-            ],
-        ]);
+        $dbc = new DbConfig($config['tables']);
+        $this->dbm = new DbManager($dbc, $config['connections'], $config['default_connection']);
     }
 
     protected function tearDown()
@@ -52,16 +43,28 @@ class AbstractTestCase extends TestCase
      */
     protected function getTable(string $table = 'test')
     {
-        return sprintf('`%s`.`%s%s`', $this->database, self::PREFIX, $table);
+        return sprintf('`test`.`test_%s`', $table);
     }
 
     /**
      * @param string $table
      *
-     * @return \Alhames\DbBundle\Db\DbTable
+     * @return \Alhames\DbBundle\Db\DbQuery
      */
     protected function db($table = 'test')
     {
         return $this->dbm->db($table);
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return array
+     */
+    protected function getConfig(string $name = 'default'): array
+    {
+        $yaml = file_get_contents(__DIR__.'/Fixtures/config/'.$name.'.yml');
+
+        return Yaml::parse($yaml)['alhames_db'];
     }
 }

@@ -25,13 +25,13 @@ trait DbManagerAwareTrait
     }
 
     /**
-     * @param string|DbTable $alias
+     * @param string|DbQuery $alias
      *
      * @throws DbException
      *
-     * @return DbTable
+     * @return DbQuery
      */
-    protected function db($alias): DbTable
+    protected function db($alias): DbQuery
     {
         return $this->dbm->db($alias);
     }

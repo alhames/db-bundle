@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 /**
  * Class PgDbExtension.
  */
-class DbExtension extends Extension
+class AlhamesDbExtension extends Extension
 {
     /**
      * {@inheritdoc}
@@ -26,20 +26,16 @@ class DbExtension extends Extension
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
 
-        $dbManagerDefinition = $container->getDefinition(DbManager::class);
-
-        if (!empty($config['connections'])) {
-            $dbManagerDefinition->setArgument('$config', $config['connections']);
-        }
-
-        $dbManagerDefinition->setArgument('$defaultConnection', $config['default_connection']);
+        $dbmDefinition = $container->getDefinition(DbManager::class);
+        $dbmDefinition->setArgument('$config', $config['connections'] ?? []);
+        $dbmDefinition->setArgument('$defaultConnection', $config['default_connection']);
 
         if (!empty($config['cache'])) {
-            $dbManagerDefinition->addMethodCall('setCacheItemPool', [new Reference($config['cache'])]);
+            $dbmDefinition->setArgument('$cacheItemPool', new Reference($config['cache']));
         }
 
         if (!empty($config['query_formatter'])) {
-            $dbManagerDefinition->addMethodCall('setQueryFormatter', [new Reference($config['query_formatter'])]);
+            $dbmDefinition->setArgument('$queryFormatter', new Reference($config['query_formatter']));
         }
 
         $container->setParameter('alhames_db.logger', $config['logger']);

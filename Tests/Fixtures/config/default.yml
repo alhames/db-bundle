@@ -1,0 +1,7 @@
+alhames_db:
+  default_connection: 'default'
+  default_database: ~
+  cache: ~
+  query_formatter: ~
+  connections: []
+  tables: []

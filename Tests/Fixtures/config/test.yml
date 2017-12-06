@@ -1,0 +1,14 @@
+alhames_db:
+  default_connection: 'test'
+  default_database: 'test'
+  connections: []
+  tables:
+    test:
+      table: 'test_test'
+      database: 'test'
+    table1:
+      table: 'test_table1'
+      database: 'test'
+    table2:
+      table: 'test_table2'
+      database: 'test'

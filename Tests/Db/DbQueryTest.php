@@ -1,20 +1,21 @@
 <?php
 declare(strict_types=1);
 
-namespace Alhames\DbBundle\Tests;
+namespace Alhames\DbBundle\Tests\Db;
 
 use Alhames\DbBundle\Db\Db;
-use Alhames\DbBundle\Db\DbTable;
+use Alhames\DbBundle\Db\DbQuery;
+use Alhames\DbBundle\Tests\AbstractTestCase;
 
 /**
- * Class DbTableTest.
+ * Class DbQueryTest.
  */
-class DbTableTest extends AbstractTestCase
+class DbQueryTest extends AbstractTestCase
 {
     public function testSimple()
     {
         $db = $this->dbm->db('test');
-        $this->assertInstanceOf(DbTable::class, $db);
+        $this->assertInstanceOf(DbQuery::class, $db);
         $this->assertSame('test', $db->getAlias());
         $this->assertSame($this->getTable(), $db->getTable());
 
@@ -58,7 +59,27 @@ class DbTableTest extends AbstractTestCase
      */
     public function provideSelect()
     {
-        return include __DIR__.'/Fixtures/DbTable/select.php';
+        return [
+            ['*'],
+            ['*', '*'],
+            ['DISTINCT *', null, Db::DISTINCT],
+            ['SQL_CALC_FOUND_ROWS DISTINCT *', null, 'SQL_CALC_FOUND_ROWS DISTINCT'],
+            ['self.*', 'self.*'],
+            ['`test_field`', 'test_field'],
+            ['self.test_field', 'self.test_field'],
+            ['field_one, field_two', 'field_one, field_two'],
+            ['self.field_one, self.field_two', 'self.field_one, self.field_two'],
+            ['`field_one`, `field_two`', ['field_one', 'field_two']],
+            ['self.field_one, self.field_two', ['self.field_one', 'self.field_two']],
+            ['`field_one`, `field_two`', '`field_one`, `field_two`'],
+            ['`field_one` AS `one`, `field_two`', ['field_one' => 'one', 'field_two']],
+            ['COUNT(*)', 'COUNT(*)'],
+            ['COUNT(*) AS `c`', ['COUNT(*)' => 'c']],
+            ['COUNT(*) AS c', 'COUNT(*) AS c'],
+            ['*, COUNT(*)', '*, COUNT(*)'],
+            ['*, COUNT(*)', ['*', 'COUNT(*)']],
+            ['*, COUNT(*) AS `c`', ['*', 'COUNT(*)' => 'c']],
+        ];
     }
 
     /**
@@ -108,7 +129,137 @@ class DbTableTest extends AbstractTestCase
      */
     public function provideWhere()
     {
-        return include __DIR__.'/Fixtures/DbTable/where.php';
+        return [
+            // Test Types
+            [
+                '`field` = 1',
+                ['field' => 1],
+            ],
+            [
+                '`field` = "a"',
+                ['field' => 'a'],
+            ],
+            [
+                '`field` = 1.1',
+                ['field' => 1.1],
+            ],
+            [
+                '`field` IS NULL',
+                ['field' => null],
+            ],
+            [
+                '`field` = "2017-07-12 18:55:43"',
+                ['field' => new \DateTime('2017-07-12 18:55:43')],
+            ],
+            [
+                '`field` = 0',
+                ['field' => false],
+            ],
+            [
+                '`field` = 1',
+                ['field' => true],
+            ],
+
+            // Test IN()
+            [
+                '`field` IN (1)',
+                ['field' => [1]],
+            ],
+            [
+                '`field` IN (1,2)',
+                ['field' => [1, 2]],
+            ],
+            [
+                '`field` IN ("a",2,NULL)',
+                ['field' => ['a', 2, null]],
+            ],
+
+            // Test AND
+            [
+                '`field_one` = 1 AND `field_two` = 2',
+                ['field_one' => 1, 'field_two' => 2],
+            ],
+            [
+                '`field_one` = 1 AND `field_two` = 2 AND `field_three` = 3',
+                ['field_one' => 1, 'field_two' => 2, 'field_three' => 3],
+            ],
+
+            // Test Db::value()
+            [
+                '`field` = 1',
+                ['field' => Db::value('=', 1)],
+            ],
+            [
+                '`field` > 1',
+                ['field' => Db::value('>', 1)],
+            ],
+            [
+                '`field` <= 1',
+                ['field' => Db::value('<=', 1)],
+            ],
+            [
+                '`field` IN (1,2)',
+                ['field' => Db::value('=', [1, 2])],
+            ],
+            [
+                '`field` IN (1,2)',
+                ['field' => Db::value('IN', [1, 2])],
+            ],
+            [
+                '`field` != 1',
+                ['field' => Db::value('!=', 1)],
+            ],
+            [
+                '`field` NOT IN (1,2)',
+                ['field' => Db::value('!=', [1, 2])],
+            ],
+            [
+                '`field` NOT IN (1,2)',
+                ['field' => Db::value('NOT IN', [1, 2])],
+            ],
+            [
+                '`field` BETWEEN 1 AND 2',
+                ['field' => Db::value('BETWEEN', [1, 2])],
+            ],
+            [
+                '`field` BETWEEN "2017-07-11 18:55:43" AND "2017-07-12 18:55:43"',
+                ['field' => Db::value('BETWEEN', [new \DateTime('2017-07-11 18:55:43'), new \DateTime('2017-07-12 18:55:43')])],
+            ],
+
+            // Test LIKE
+            [
+                '`field` LIKE "abc"',
+                ['field' => Db::value('LIKE', 'abc')],
+            ],
+            [
+                '`field` LIKE "%a_c%"',
+                ['field' => Db::value('LIKE', '%a_c%')],
+            ],
+            [
+                '`field` LIKE "%a\\\\_c\\\\%"',
+                ['field' => Db::value('LIKE', '%'.Db::escapeLike('a_c%'))],
+            ],
+
+            // Test escaping
+            [
+                '`field` = "a\" AND `b` = \"0"',
+                ['field' => 'a" AND `b` = "0'],
+            ],
+
+            // Test field
+            [
+                'self.a = "a"',
+                ['self.a' => 'a'],
+            ],
+            [
+                'self.a = `b`',
+                ['self.a' => Db::field('b')],
+            ],
+            [
+                'self.a = self.b',
+                ['self.a' => Db::field('self.b')],
+            ],
+        ];
     }
 
     /**
@@ -197,7 +348,7 @@ class DbTableTest extends AbstractTestCase
     {
         $db = $this->db()->select()->groupBy(['field']);
 
-        $db->having(['COUNT(*)' => Db::value('>', 2)]);
+        $db->having(['COUNT(*)' => Db::more(2)]);
         $this->assertDbQuery($db, [
             'SELECT *',
             'FROM '.$this->getTable().' AS self',
@@ -222,14 +373,6 @@ class DbTableTest extends AbstractTestCase
 
         $db->limit(100, null);
         $this->assertSame($expectedPrefix.'100', $db->getQuery());
-    }
-
-    /**
-     * @expectedException \TypeError
-     */
-    public function testLimitExceptions()
-    {
-        $this->db()->select()->limit(null);
     }
 
     public function testSetPage()
@@ -462,10 +605,10 @@ class DbTableTest extends AbstractTestCase
     }
 
     /**
-     * @param DbTable $db
+     * @param DbQuery $db
      * @param array   $expected
      */
-    protected function assertDbQuery(DbTable $db, array $expected)
+    protected function assertDbQuery(DbQuery $db, array $expected)
     {
         $this->assertSame(implode(PHP_EOL, $expected), $db->getQuery());
     }

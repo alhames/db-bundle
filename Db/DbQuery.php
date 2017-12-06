@@ -5,9 +5,9 @@ namespace Alhames\DbBundle\Db;
 use Alhames\DbBundle\Exception\DbException;
 
 /**
- * Class DbTable.
+ * Class DbQuery.
  */
-class DbTable
+class DbQuery
 {
     /** @var string */
     protected $alias;
@@ -79,7 +79,7 @@ class DbTable
     protected $cacheRebuild = false;
 
     /**
-     * @param string|DbTable $alias
+     * @param string|DbQuery $alias
      * @param DbConnection   $connection
      * @param DbConfig       $config
      */

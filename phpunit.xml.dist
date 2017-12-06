@@ -2,30 +2,30 @@
 
 <phpunit colors="true" bootstrap="vendor/autoload.php">
 
-    <php>
-        <ini name="error_reporting" value="-1" />
+  <php>
+    <ini name="error_reporting" value="-1"/>
 
-        <var name="db_host" value="127.0.0.1" />
-        <var name="db_username" value="root" />
-        <var name="db_password" value="" />
-        <var name="db_database" value="test" />
-        <var name="db_port" value="3306" />
-    </php>
+    <var name="db_host" value="127.0.0.1"/>
+    <var name="db_username" value="root"/>
+    <var name="db_password" value=""/>
+    <var name="db_port" value="3306"/>
+  </php>
 
-    <testsuites>
-        <testsuite name="DbBundle test suite">
-            <directory>./Tests</directory>
-        </testsuite>
-    </testsuites>
+  <testsuites>
+    <testsuite name="DbBundle test suite">
+      <directory>./Tests</directory>
+    </testsuite>
+  </testsuites>
 
-    <filter>
-        <whitelist>
-            <directory>.</directory>
-            <exclude>
-                <directory>./Resources</directory>
-                <directory>./Tests</directory>
-                <directory>./vendor</directory>
-            </exclude>
-        </whitelist>
-    </filter>
+  <filter>
+    <whitelist>
+      <directory>.</directory>
+      <exclude>
+        <directory>./Resources</directory>
+        <directory>./Tests</directory>
+        <directory>./vendor</directory>
+      </exclude>
+    </whitelist>
+  </filter>
+
 </phpunit>

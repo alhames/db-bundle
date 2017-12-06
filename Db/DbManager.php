@@ -33,40 +33,21 @@ class DbManager implements LoggerAwareInterface
     protected $connections = [];
 
     /**
-     * @param DbConfig $dbConfig
-     * @param array    $config
-     * @param string   $defaultConnection
+     * @param DbConfig                       $dbConfig
+     * @param array                          $config
+     * @param string                         $defaultConnection
+     * @param CacheItemPoolInterface|null    $cacheItemPool
+     * @param DbQueryFormatterInterface|null $queryFormatter
      */
-    public function __construct(DbConfig $dbConfig, array $config, string $defaultConnection = 'default')
+    public function __construct(DbConfig $dbConfig, array $config, string $defaultConnection = 'default', CacheItemPoolInterface $cacheItemPool = null, DbQueryFormatterInterface $queryFormatter = null)
     {
         $this->dbConfig = $dbConfig;
         $this->config = $config;
         $this->defaultConnection = $defaultConnection;
         mysqli_report(MYSQLI_REPORT_STRICT);
-    }
 
-    /**
-     * @param CacheItemPoolInterface $cacheItemPool
-     *
-     * @return static
-     */
-    public function setCacheItemPool(CacheItemPoolInterface $cacheItemPool)
-    {
         $this->cacheItemPool = $cacheItemPool;
-
-        return $this;
-    }
-
-    /**
-     * @param DbQueryFormatterInterface $queryFormatter
-     *
-     * @return static
-     */
-    public function setQueryFormatter(DbQueryFormatterInterface $queryFormatter)
-    {
         $this->queryFormatter = $queryFormatter;
-
-        return $this;
     }
 
     /**
@@ -94,15 +75,15 @@ class DbManager implements LoggerAwareInterface
     }
 
     /**
-     * @param string|DbTable $alias
+     * @param string|DbQuery $alias
      *
      * @throws DbException
      *
-     * @return DbTable
+     * @return DbQuery
      */
-    public function db($alias): DbTable
+    public function db($alias): DbQuery
     {
-        if ($alias instanceof DbTable) {
+        if ($alias instanceof DbQuery) {
             $config = $this->dbConfig->get($alias->getAlias());
         } else {
             $config = $this->dbConfig->get($alias);
@@ -110,7 +91,7 @@ class DbManager implements LoggerAwareInterface
 
         $connection = $this->getConnection($config['connection'] ?? null);
 
-        return new DbTable($alias, $connection, $this->dbConfig);
+        return new DbQuery($alias, $connection, $this->dbConfig);
     }
 
     /**

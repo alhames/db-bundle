@@ -1,3 +1,0 @@
-db:
-    default_connection: 'default'
-    default_database: ~
