@@ -356,11 +356,11 @@ class DbQuery
     }
 
     /**
-     * @param int $limit
+     * @param int|null $limit
      *
      * @return static
      */
-    public function limit(int $limit)
+    public function limit(int $limit = null)
     {
         $this->limit = $limit;
 
@@ -368,11 +368,11 @@ class DbQuery
     }
 
     /**
-     * @param int $offset
+     * @param int|null $offset
      *
      * @return static
      */
-    public function offset(int $offset)
+    public function offset(int $offset = null)
     {
         $this->offset = $offset;
 
