@@ -122,6 +122,29 @@ class DbQueryTest extends AbstractTestCase
             'FROM '.$this->getTable().' AS self',
             'USE INDEX (`i1`, `i2`)'
         ]);
+
+        $db = $this->db()->select()->index('main', 'FORCE', 'GROUP BY');
+        $this->assertDbQuery($db, [
+            'SELECT *',
+            'FROM '.$this->getTable().' AS self',
+            'FORCE INDEX FOR GROUP BY (`main`)'
+        ]);
+    }
+
+    /**
+     * @expectedException \Alhames\DbBundle\Exception\DbException
+     */
+    public function textIndexWithInvalidAction()
+    {
+        $this->db()->select()->index('main', 'CAT');
+    }
+
+    /**
+     * @expectedException \Alhames\DbBundle\Exception\DbException
+     */
+    public function textIndexWithInvalidPurpose()
+    {
+        $this->db()->select()->index('main', 'USE', 'CAT');
     }
 
     /**
@@ -515,6 +538,15 @@ class DbQueryTest extends AbstractTestCase
         ]);
     }
 
+    /**
+     * @expectedException \Alhames\DbBundle\Exception\DbException
+     */
+    public function testSubQueryException()
+    {
+        $subQuery = $this->db()->select()->where(['id' => 1]);
+        $this->db($subQuery)->insert(['a' => 'b'])->getQuery();
+    }
+
     public function testOnDuplicateKey()
     {
         $db = $this->db()->insert(['field' => 1])->onDuplicateKey(['field' => 2]);
@@ -556,6 +588,14 @@ class DbQueryTest extends AbstractTestCase
         $this->assertAttributeSame('key', 'cacheKey', $db);
         $this->assertAttributeSame(60, 'cacheTime', $db);
         $this->assertAttributeSame(true, 'cacheRebuild', $db);
+    }
+
+    /**
+     * @expectedException \Alhames\DbBundle\Exception\DbException
+     */
+    public function testSetCachingException()
+    {
+        $this->db()->delete()->setCaching('key', 60, true);
     }
 
     public function testGetRow()
