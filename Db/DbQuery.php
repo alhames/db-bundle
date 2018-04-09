@@ -192,6 +192,21 @@ class DbQuery
      *
      * @return static
      */
+    public function multiUpdate(array $data, string $options = null)
+    {
+        $this->method = 'multi_update';
+        $this->options = $options;
+        $this->set = $this->prepareMultiUpdateStatement($data);
+
+        return $this;
+    }
+
+    /**
+     * @param array  $data
+     * @param string $options
+     *
+     * @return static
+     */
     public function replace(array $data, string $options = null)
     {
         $this->method = 'replace';
@@ -657,7 +672,16 @@ class DbQuery
                 }
 
                 return $query;
+            case 'multi_update':
+                $query = 'UPDATE ';
 
+                if (!empty($this->options)) {
+                    $query .= $this->options.' ';
+                }
+
+                $query .= $this->getTable().PHP_EOL.'SET '.$this->set;
+
+                return $query;
             case 'replace':
 
                 $query = 'REPLACE ';
@@ -963,5 +987,31 @@ class DbQuery
         }
 
         return rtrim($statement, ',');
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return string
+     */
+    protected function prepareMultiUpdateStatement(array $params): string
+    {
+        $fields = array_keys($params[0]);
+
+        $caseStatements = [];
+        foreach ($fields as $field) {
+            if ('id' === $field) {
+                continue;
+            }
+
+            $caseStatement = $this->prepareField($field).' = CASE `id` ';
+            foreach ($params as $row) {
+                $caseStatement .= ' WHEN '.$this->prepareValue($row['id']).' THEN '.$this->prepareValue($row[$field]);
+            }
+            $caseStatement .= ' END';
+            $caseStatements[] = $caseStatement;
+        }
+
+        return implode(',', $caseStatements);
     }
 }
