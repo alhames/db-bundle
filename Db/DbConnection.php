@@ -83,6 +83,9 @@ class DbConnection implements LoggerAwareInterface
 
         try {
             $successSet = $this->mysqli->set_charset($this->config['charset']);
+            if (!empty($this->config['timezone'])) {
+                $successSet = $successSet && $this->mysqli->query(sprintf('SET time_zone = "%s"', $this->config['timezone']));
+            }
         } catch (\Throwable $e) {
             throw $this->createException(null, $e);
         }

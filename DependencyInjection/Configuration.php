@@ -48,6 +48,7 @@ class Configuration implements ConfigurationInterface
                             ->scalarNode('database')->defaultNull()->end()
                             ->integerNode('port')->defaultValue(3306)->end()
                             ->scalarNode('charset')->defaultValue('utf8mb4')->end()
+                            ->scalarNode('timezone')->defaultNull()->end()
                         ->end()
                     ->end()
                 ->end()

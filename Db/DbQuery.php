@@ -718,6 +718,14 @@ class DbQuery
     }
 
     /**
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->getQuery();
+    }
+
+    /**
      * @param string $name
      * @param string $operator
      *
