@@ -20,6 +20,10 @@ class DbDataCollector extends AbstractLogger implements DataCollectorInterface
      */
     public function log($level, $message, array $context = [])
     {
+        // disabled for console requests
+        if ('cli' === PHP_SAPI) {
+            return;
+        }
         $this->data[] = array_merge($context, ['query' => $message, 'level' => $level]);
     }
 
