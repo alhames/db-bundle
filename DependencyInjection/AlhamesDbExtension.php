@@ -4,6 +4,7 @@ namespace Alhames\DbBundle\DependencyInjection;
 
 use Alhames\DbBundle\Db\DbConfig;
 use Alhames\DbBundle\Db\DbManager;
+use Alhames\DbBundle\Db\DbManagerAwareInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader;
@@ -53,5 +54,8 @@ class AlhamesDbExtension extends Extension
 
             $container->getDefinition(DbConfig::class)->setArgument('$tables', $config['tables']);
         }
+
+        $container->registerForAutoconfiguration(DbManagerAwareInterface::class)
+            ->addMethodCall('setDbManager', [new Reference(DbManager::class)]);
     }
 }
