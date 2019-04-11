@@ -71,6 +71,15 @@ class DbDataCollector extends AbstractLogger implements DataCollectorInterface
      */
     public function getQueries(): array
     {
+        $pattern = "#(SELECT|FROM|INSERT|UPDATE|SET|DELETE|REPLACE|TRUNCATE|INNER|LEFT|JOIN|WHERE|LIMIT|ORDER BY|GROUP BY|AND|OR|IS|ASC|DESC|AS|NOT|IN|ON|DISTINCT)#";
+        foreach ($this->data as &$item) {
+            $formattedQuery = htmlspecialchars($item['query']);
+            $formattedQuery = preg_replace($pattern, '<span class="keyword">$1</span>', $formattedQuery);
+            $formattedQuery = '<span class="query-row">'.implode('</span><br><span class="query-row">', explode("\n", $formattedQuery)).'</span>';
+            $item['formatted'] = $formattedQuery;
+        }
+        unset($item);
+
         return $this->data;
     }
 

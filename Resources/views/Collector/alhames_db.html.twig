@@ -1,5 +1,19 @@
 {% extends '@WebProfiler/Profiler/layout.html.twig' %}
 
+{% block head %}
+  {{ parent() }}
+  <style>
+    span.query-row {
+      display: inline-block;
+      padding-left:1em;
+      text-indent: -1em;
+      word-break: break-all;
+      white-space: pre-wrap;
+    }
+  </style>
+{% endblock %}
+
+
 {% block toolbar %}
   {% set icon %}
     {{ include('@AlhamesDb/Collector/icon.svg') }}
@@ -73,7 +87,7 @@
     {% for query in collector.queries %}
       <tr>
         <td class="font-normal text-small text-bold">{{ query.alias }}</td>
-        <td class="font-normal text-small" style="white-space: pre-wrap;">{{ query.query }}</td>
+        <td class="font-normal text-small highlight">{{ query.formatted|raw }}</td>
         <td class="font-normal text-small">{{ query.is_cached ? 'Yes' : 'No' }}</td>
         <td class="font-normal text-small" style="white-space: nowrap;">
           {{ '%0.2f'|format(query.query_time * 1000) }}
