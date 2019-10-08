@@ -14,9 +14,9 @@ abstract class AbstractException extends \RuntimeException
      * @param string|null     $alias
      * @param string|null     $message
      * @param int             $code
-     * @param \Exception|null $previous
+     * @param \Throwable|null $previous
      */
-    public function __construct(string $alias = null, string $message = null, int $code = 0, \Exception $previous = null)
+    public function __construct(?string $alias = null, ?string $message = null, int $code = 0, ?\Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
 
@@ -26,7 +26,7 @@ abstract class AbstractException extends \RuntimeException
     /**
      * @return string|null
      */
-    public function getAlias()
+    public function getAlias(): ?string
     {
         return $this->alias;
     }

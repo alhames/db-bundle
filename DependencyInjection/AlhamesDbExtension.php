@@ -32,7 +32,7 @@ class AlhamesDbExtension extends Extension
         $dbmDefinition->setArgument('$defaultConnection', $config['default_connection']);
 
         if (!empty($config['cache'])) {
-            $dbmDefinition->setArgument('$cacheItemPool', new Reference($config['cache']));
+            $dbmDefinition->setArgument('$cache', new Reference($config['cache']));
         }
 
         if (!empty($config['query_formatter'])) {

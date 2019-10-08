@@ -3,9 +3,9 @@
 namespace Alhames\DbBundle\Db;
 
 use Alhames\DbBundle\Exception\DbException;
-use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * Class DbManager.
@@ -23,8 +23,8 @@ class DbManager implements LoggerAwareInterface
     /** @var string */
     protected $defaultConnection;
 
-    /** @var CacheItemPoolInterface */
-    protected $cacheItemPool;
+    /** @var CacheInterface */
+    protected $cache;
 
     /** @var DbQueryFormatterInterface */
     protected $queryFormatter;
@@ -36,17 +36,17 @@ class DbManager implements LoggerAwareInterface
      * @param DbConfig                       $dbConfig
      * @param array                          $config
      * @param string                         $defaultConnection
-     * @param CacheItemPoolInterface|null    $cacheItemPool
+     * @param CacheInterface|null            $cache
      * @param DbQueryFormatterInterface|null $queryFormatter
      */
-    public function __construct(DbConfig $dbConfig, array $config, string $defaultConnection = 'default', CacheItemPoolInterface $cacheItemPool = null, DbQueryFormatterInterface $queryFormatter = null)
+    public function __construct(DbConfig $dbConfig, array $config, string $defaultConnection = 'default', ?CacheInterface $cache = null, ?DbQueryFormatterInterface $queryFormatter = null)
     {
         $this->dbConfig = $dbConfig;
         $this->config = $config;
         $this->defaultConnection = $defaultConnection;
         mysqli_report(MYSQLI_REPORT_STRICT);
 
-        $this->cacheItemPool = $cacheItemPool;
+        $this->cache = $cache;
         $this->queryFormatter = $queryFormatter;
     }
 
@@ -99,7 +99,7 @@ class DbManager implements LoggerAwareInterface
      *
      * @return DbConnection
      */
-    public function getConnection(string $alias = null): DbConnection
+    public function getConnection(?string $alias = null): DbConnection
     {
         if (null === $alias) {
             $alias = $this->defaultConnection;
@@ -110,8 +110,8 @@ class DbManager implements LoggerAwareInterface
         }
 
         $this->connections[$alias] = new DbConnection($this->config[$alias], $alias);
-        if (null !== $this->cacheItemPool) {
-            $this->connections[$alias]->setCacheItemPool($this->cacheItemPool);
+        if (null !== $this->cache) {
+            $this->connections[$alias]->setCache($this->cache);
         }
         if (null !== $this->logger) {
             $this->connections[$alias]->setLogger($this->logger);

@@ -14,10 +14,10 @@ class ExecutionException extends AbstractException
      * @param string          $alias
      * @param string|null     $message
      * @param int             $code
-     * @param \Exception|null $previous
+     * @param \Throwable|null $previous
      * @param string|null     $query
      */
-    public function __construct(string $alias, string $message = null, int $code = 0, \Exception $previous = null, string $query = null)
+    public function __construct(string $alias, ?string $message = null, int $code = 0, ?\Throwable $previous = null, ?string $query = null)
     {
         parent::__construct($alias, $message, $code, $previous);
 

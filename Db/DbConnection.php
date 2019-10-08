@@ -4,9 +4,10 @@ namespace Alhames\DbBundle\Db;
 
 use Alhames\DbBundle\Exception\ConnectionException;
 use Alhames\DbBundle\Exception\ExecutionException;
-use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * Class Sql.
@@ -23,8 +24,8 @@ class DbConnection implements LoggerAwareInterface
     /** @var \mysqli */
     protected $mysqli;
 
-    /** @var CacheItemPoolInterface */
-    protected $cacheItemPool;
+    /** @var CacheInterface */
+    protected $cache;
 
     /** @var string */
     protected $alias;
@@ -100,23 +101,23 @@ class DbConnection implements LoggerAwareInterface
     }
 
     /**
-     * @param CacheItemPoolInterface $cache
+     * @param CacheInterface|null $cache
      *
      * @return static
      */
-    public function setCacheItemPool(CacheItemPoolInterface $cache)
+    public function setCache(?CacheInterface $cache = null)
     {
-        $this->cacheItemPool = $cache;
+        $this->cache = $cache;
 
         return $this;
     }
 
     /**
-     * @param DbQueryFormatterInterface $queryFormatter
+     * @param DbQueryFormatterInterface|null $queryFormatter
      *
      * @return static
      */
-    public function setQueryFormatter(DbQueryFormatterInterface $queryFormatter)
+    public function setQueryFormatter(?DbQueryFormatterInterface $queryFormatter = null)
     {
         $this->queryFormatter = $queryFormatter;
 
@@ -130,74 +131,27 @@ class DbConnection implements LoggerAwareInterface
      * @param bool        $cacheRebuild
      *
      * @return array
-     * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function query(string $query, string $cacheKey = null, int $cacheTime = null, bool $cacheRebuild = false): array
+    public function query(string $query, ?string $cacheKey = null, ?int $cacheTime = null, bool $cacheRebuild = false): array
     {
         $startTime = microtime(true);
-        $result = [];
         $isCached = false;
+        $connectTime = 0;
+        $queryTime = 0;
 
-        if (null !== $this->cacheItemPool && !empty($cacheKey) && $cacheTime > 0) {
-            $cacheItem = $this->cacheItemPool->getItem($cacheKey);
-            if (!$cacheRebuild && $cacheItem->isHit()) {
-                $isCached = true;
-                $result = $cacheItem->get();
+        if (null !== $this->cache && !empty($cacheKey) && $cacheTime > 0) {
+            if ($cacheRebuild) {
+                $this->cache->delete($cacheKey);
             }
-        }
+            $isCached = true;
+            $result = $this->cache->get($cacheKey, function (ItemInterface $item) use ($query, $cacheKey, $cacheTime, &$connectTime, &$queryTime) {
+                $item->expiresAfter($cacheTime);
+                [$result, $connectTime, $queryTime] = $this->doQuery($query, $cacheKey, $cacheTime);
 
-        if (!$isCached) {
-            $formattedQuery = null !== $this->queryFormatter ? $this->queryFormatter->format($query, $cacheKey, $cacheTime) : $query;
-
-            // Connect
-            $connectTime = microtime(true);
-            $this->connect();
-            $connectTime = microtime(true) - $connectTime;
-
-            // Query
-            $queryTime = microtime(true);
-            try {
-                $queryResult = $this->mysqli->query($formattedQuery);
-            } catch (\Throwable $e) {
-                if (self::CR_SERVER_GONE_ERROR !== $this->mysqli->errno) {
-                    throw $this->createException($query, $e);
-                }
-            }
-            $queryTime = microtime(true) - $queryTime;
-
-            // Reconnect
-            if (self::CR_SERVER_GONE_ERROR === $this->mysqli->errno) {
-                $reconnectTime = microtime(true);
-                $this->reconnect();
-                $connectTime = microtime(true) - $reconnectTime + $connectTime;
-
-                $queryTimeAfterReconnect = microtime(true);
-                try {
-                    $queryResult = $this->mysqli->query($formattedQuery);
-                } catch (\Throwable $e) {
-                    throw $this->createException($query, $e);
-                }
-                $queryTime = microtime(true) - $queryTimeAfterReconnect + $queryTime;
-            }
-
-            if ($queryResult instanceof \mysqli_result) {
-                if ($queryResult->num_rows) {
-                    while ($row = $queryResult->fetch_assoc()) {
-                        $result[] = $row;
-                    }
-                }
-
-                $queryResult->free();
-
-                // Save cache
-                if (isset($cacheItem)) {
-                    $this->cacheItemPool->save(
-                        $cacheItem->set($result)->expiresAfter($cacheTime)
-                    );
-                }
-            } elseif (true !== $queryResult) {
-                throw $this->createException($query);
-            }
+                return $result;
+            });
+        } else {
+            [$result, $connectTime, $queryTime] = $this->doQuery($query, $cacheKey, $cacheTime);
         }
 
         if (null !== $this->logger) {
@@ -205,8 +159,8 @@ class DbConnection implements LoggerAwareInterface
                 'alias' => $this->alias,
                 'is_cached' => $isCached,
                 'started_at' => $startTime,
-                'connect_time' => $connectTime ?? 0,
-                'query_time' => $queryTime ?? 0,
+                'connect_time' => $connectTime,
+                'query_time' => $queryTime,
                 'total_time' => microtime(true) - $startTime,
             ]);
         }
@@ -334,12 +288,70 @@ class DbConnection implements LoggerAwareInterface
     }
 
     /**
+     * @param string      $query
+     * @param string|null $cacheKey
+     * @param int|null    $cacheTime
+     *
+     * @return array
+     */
+    protected function doQuery(string $query, ?string $cacheKey = null, ?int $cacheTime = null): array
+    {
+        $formattedQuery = null !== $this->queryFormatter ? $this->queryFormatter->format($query, $cacheKey, $cacheTime) : $query;
+        $result = [];
+
+        // Connect
+        $connectTime = microtime(true);
+        $this->connect();
+        $connectTime = microtime(true) - $connectTime;
+
+        // Query
+        $queryTime = microtime(true);
+        try {
+            $queryResult = $this->mysqli->query($formattedQuery);
+        } catch (\Throwable $e) {
+            if (self::CR_SERVER_GONE_ERROR !== $this->mysqli->errno) {
+                throw $this->createException($query, $e);
+            }
+        }
+        $queryTime = microtime(true) - $queryTime;
+
+        // Reconnect
+        if (self::CR_SERVER_GONE_ERROR === $this->mysqli->errno) {
+            $reconnectTime = microtime(true);
+            $this->reconnect();
+            $connectTime = microtime(true) - $reconnectTime + $connectTime;
+
+            $queryTimeAfterReconnect = microtime(true);
+            try {
+                $queryResult = $this->mysqli->query($formattedQuery);
+            } catch (\Throwable $e) {
+                throw $this->createException($query, $e);
+            }
+            $queryTime = microtime(true) - $queryTimeAfterReconnect + $queryTime;
+        }
+
+        if ($queryResult instanceof \mysqli_result) {
+            if ($queryResult->num_rows) {
+                while ($row = $queryResult->fetch_assoc()) {
+                    $result[] = $row;
+                }
+            }
+
+            $queryResult->free();
+        } elseif (true !== $queryResult) {
+            throw $this->createException($query);
+        }
+
+        return [$result, $connectTime, $queryTime];
+    }
+
+    /**
      * @param string|null     $query
      * @param \Throwable|null $exception
      *
      * @return ExecutionException
      */
-    protected function createException(string $query = null, \Throwable $exception = null): ExecutionException
+    protected function createException(?string $query = null, ?\Throwable $exception = null): ExecutionException
     {
         return new ExecutionException($this->alias, $this->mysqli->error, $this->mysqli->errno, $exception, $query);
     }
