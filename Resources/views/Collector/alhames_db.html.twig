@@ -98,7 +98,7 @@
         </td>
         <td class="font-normal text-small">
           {% set startedAt = query.started_at|split('.') %}
-          {{ startedAt[0]|date('H:i:s') }}<span class="text-muted text-small" title="Connect time">:{{ startedAt[1] }}</span>
+          {{ startedAt[0]|date('H:i:s') }}<span class="text-muted text-small">:{{ startedAt[1]|default('0000') }}</span>
         </td>
       </tr>
     {% endfor %}
