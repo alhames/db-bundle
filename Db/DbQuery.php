@@ -78,6 +78,9 @@ class DbQuery
     /** @var bool */
     protected $cacheRebuild = false;
 
+    /** @var int */
+    protected $rowCount;
+
     /**
      * @param string|DbQuery $alias
      * @param DbConnection   $connection
@@ -496,11 +499,11 @@ class DbQuery
     {
         $this->exec();
 
-        if ('select' === $this->method && false !== strpos($this->options, Db::CALC_FOUND_ROWS)) {
-            return $this->connection->getFoundRows();
+        if (null === $this->rowCount) {
+            $this->rowCount = $this->connection->getAffectedRows();
         }
 
-        return $this->connection->getAffectedRows();
+        return $this->rowCount;
     }
 
     /**
@@ -528,6 +531,9 @@ class DbQuery
         }
 
         $this->result = $this->connection->query($this->getQuery(), $this->cacheKey, $this->cacheTime, $this->cacheRebuild);
+        if ('select' === $this->method && false !== strpos($this->options, Db::CALC_FOUND_ROWS)) {
+            $this->rowCount = $this->connection->getFoundRows();
+        }
     }
 
     /**
