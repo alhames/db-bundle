@@ -32,11 +32,11 @@ class AlhamesDbExtension extends Extension
         $dbmDefinition->setArgument('$defaultConnection', $config['default_connection']);
 
         if (!empty($config['cache'])) {
-            $dbmDefinition->setArgument('$cache', new Reference($config['cache']));
+            $dbmDefinition->addMethodCall('setCache', [new Reference($config['cache'])]);
         }
 
         if (!empty($config['query_formatter'])) {
-            $dbmDefinition->setArgument('$queryFormatter', new Reference($config['query_formatter']));
+            $dbmDefinition->addMethodCall('setQueryFormatter', [new Reference($config['query_formatter'])]);
         }
 
         $container->setParameter('alhames_db.logger', $config['logger']);
@@ -47,6 +47,9 @@ class AlhamesDbExtension extends Extension
                     $table['table'] = $alias;
                 }
                 if (null === $table['database']) {
+                    if (empty($config['default_database'])) {
+                        throw new \InvalidArgumentException(sprintf('You must specify `database` for table "%s" or specify `default_database` for the connection.', $alias));
+                    }
                     $table['database'] = $config['default_database'];
                 }
             }

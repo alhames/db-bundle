@@ -4,18 +4,15 @@ namespace Alhames\DbBundle\Db;
 
 use Alhames\DbBundle\Exception\ConnectionException;
 use Alhames\DbBundle\Exception\ExecutionException;
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * Class Sql.
  */
-class DbConnection implements LoggerAwareInterface
+class DbConnection
 {
-    use LoggerAwareTrait;
-
     const CR_SERVER_GONE_ERROR = 2006;
 
     /** @var array */
@@ -35,6 +32,9 @@ class DbConnection implements LoggerAwareInterface
 
     /** @var DbQueryFormatterInterface */
     protected $queryFormatter;
+
+    /** @var LoggerInterface */
+    protected $logger;
 
     /**
      * @param array  $config
@@ -120,6 +120,18 @@ class DbConnection implements LoggerAwareInterface
     public function setQueryFormatter(?DbQueryFormatterInterface $queryFormatter = null)
     {
         $this->queryFormatter = $queryFormatter;
+
+        return $this;
+    }
+
+    /**
+     * @param LoggerInterface|null $logger
+     *
+     * @return static
+     */
+    public function setLogger(?LoggerInterface $logger = null)
+    {
+        $this->logger = $logger;
 
         return $this;
     }

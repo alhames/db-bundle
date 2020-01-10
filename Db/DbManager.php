@@ -3,17 +3,14 @@
 namespace Alhames\DbBundle\Db;
 
 use Alhames\DbBundle\Exception\DbException;
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * Class DbManager.
  */
-class DbManager implements LoggerAwareInterface
+class DbManager
 {
-    use LoggerAwareTrait;
-
     /** @var DbConfig */
     protected $dbConfig;
 
@@ -29,25 +26,23 @@ class DbManager implements LoggerAwareInterface
     /** @var DbQueryFormatterInterface */
     protected $queryFormatter;
 
+    /** @var LoggerInterface */
+    protected $logger;
+
     /** @var DbConnection[] */
     protected $connections = [];
 
     /**
-     * @param DbConfig                       $dbConfig
-     * @param array                          $config
-     * @param string                         $defaultConnection
-     * @param CacheInterface|null            $cache
-     * @param DbQueryFormatterInterface|null $queryFormatter
+     * @param DbConfig $dbConfig
+     * @param array    $config
+     * @param string   $defaultConnection
      */
-    public function __construct(DbConfig $dbConfig, array $config, string $defaultConnection = 'default', ?CacheInterface $cache = null, ?DbQueryFormatterInterface $queryFormatter = null)
+    public function __construct(DbConfig $dbConfig, array $config, string $defaultConnection = 'default')
     {
         $this->dbConfig = $dbConfig;
         $this->config = $config;
         $this->defaultConnection = $defaultConnection;
         mysqli_report(MYSQLI_REPORT_STRICT);
-
-        $this->cache = $cache;
-        $this->queryFormatter = $queryFormatter;
     }
 
     /**
@@ -58,6 +53,51 @@ class DbManager implements LoggerAwareInterface
     public function setDefaultConnection(string $defaultConnection)
     {
         $this->defaultConnection = $defaultConnection;
+
+        return $this;
+    }
+
+    /**
+     * @param CacheInterface|null $cache
+     *
+     * @return static
+     */
+    public function setCache(?CacheInterface $cache = null)
+    {
+        $this->cache = $cache;
+        foreach ($this->connections as $connection) {
+            $connection->setCache($cache);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param DbQueryFormatterInterface|null $queryFormatter
+     *
+     * @return static
+     */
+    public function setQueryFormatter(?DbQueryFormatterInterface $queryFormatter = null)
+    {
+        $this->queryFormatter = $queryFormatter;
+        foreach ($this->connections as $connection) {
+            $connection->setQueryFormatter($queryFormatter);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param LoggerInterface|null $logger
+     *
+     * @return static
+     */
+    public function setLogger(?LoggerInterface $logger = null)
+    {
+        $this->logger = $logger;
+        foreach ($this->connections as $connection) {
+            $connection->setLogger($logger);
+        }
 
         return $this;
     }
