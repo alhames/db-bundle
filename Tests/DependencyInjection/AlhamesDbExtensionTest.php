@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace DbBundle\Tests\DependencyInjection;
 
@@ -10,12 +11,9 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Yaml\Yaml;
 
-/**
- * Class DbExtensionTest.
- */
 class AlhamesDbExtensionTest extends TestCase
 {
-    public function testConfig()
+    public function testConfig(): void
     {
         $container = new ContainerBuilder();
         $loader = new AlhamesDbExtension();
@@ -29,11 +27,6 @@ class AlhamesDbExtensionTest extends TestCase
         $this->assertTrue($container->hasDefinition(DbDataCollector::class));
     }
 
-    /**
-     * @param string $name
-     *
-     * @return array
-     */
     protected function getConfig(string $name = 'default'): array
     {
         $yaml = file_get_contents(__DIR__.'/../Fixtures/config/'.$name.'.yml');

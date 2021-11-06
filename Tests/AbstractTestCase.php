@@ -1,66 +1,48 @@
 <?php
+declare(strict_types=1);
 
 namespace Alhames\DbBundle\Tests;
 
 use Alhames\DbBundle\Db\DbConfig;
 use Alhames\DbBundle\Db\DbManager;
+use Alhames\DbBundle\Db\DbQuery;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Yaml\Yaml;
 
-/**
- * Class AbstractTestCase.
- */
 abstract class AbstractTestCase extends TestCase
 {
-    /** @var DbManager */
-    protected $dbm;
+    protected DbManager $dbm;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $config = $this->getConfig('test');
         $config['connections']['test'] = [
-            'host' => $GLOBALS['db_host'],
-            'username' => $GLOBALS['db_username'],
-            'password' => $GLOBALS['db_password'],
-            'database' => 'test',
-            'port' => $GLOBALS['db_port'] ?? 3306,
+            'host' => $_SERVER['DB_HOST'] ?? '127.0.0.1',
+            'username' => $_SERVER['DB_USER'] ?? 'root',
+            'password' => $_SERVER['DB_PASS'] ?? '',
+            'database' => $_SERVER['DB_BASE'] ?? 'test',
+            'port' => $_SERVER['DB_PORT'] ?? 3306,
             'charset' => 'utf8mb4',
         ];
-
         $dbc = new DbConfig($config['tables']);
         $this->dbm = new DbManager($dbc, $config['connections'], $config['default_connection']);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->dbm->getConnection()->close();
     }
 
-    /**
-     * @param string $table
-     *
-     * @return string
-     */
-    protected function getTable(string $table = 'test')
+    protected function getTable(string $table = 'test'): string
     {
         return sprintf('`test`.`test_%s`', $table);
     }
 
-    /**
-     * @param string $table
-     *
-     * @return \Alhames\DbBundle\Db\DbQuery
-     */
-    protected function db($table = 'test')
+    protected function db($table = 'test'): DbQuery
     {
         return $this->dbm->db($table);
     }
 
-    /**
-     * @param string $name
-     *
-     * @return array
-     */
     protected function getConfig(string $name = 'default'): array
     {
         $yaml = file_get_contents(__DIR__.'/Fixtures/config/'.$name.'.yml');

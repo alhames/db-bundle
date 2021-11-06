@@ -5,14 +5,12 @@ namespace Alhames\DbBundle\Tests\Db;
 
 use Alhames\DbBundle\Db\Db;
 use Alhames\DbBundle\Db\DbQuery;
+use Alhames\DbBundle\Exception\DbException;
 use Alhames\DbBundle\Tests\AbstractTestCase;
 
-/**
- * Class DbQueryTest.
- */
 class DbQueryTest extends AbstractTestCase
 {
-    public function testSimple()
+    public function testSimple(): void
     {
         $db = $this->dbm->db('test');
         $this->assertInstanceOf(DbQuery::class, $db);
@@ -34,30 +32,25 @@ class DbQueryTest extends AbstractTestCase
         $this->assertSame($db, $db->index('field'));
     }
 
-    public function testTruncate()
+    public function testTruncate(): void
     {
         $db = $this->db()->truncate()->disableSecurity();
         $this->assertDbQuery($db, ['TRUNCATE TABLE '.$this->getTable()]);
     }
 
-    /**
-     * @expectedException \Alhames\DbBundle\Exception\DbException
-     */
-    public function testTruncateException()
+    public function testTruncateException(): void
     {
+        $this->expectException(DbException::class);
         $this->db()->truncate()->getQuery();
     }
 
-    public function testOptimize()
+    public function testOptimize(): void
     {
         $db = $this->db()->optimize();
         $this->assertDbQuery($db, ['OPTIMIZE TABLE '.$this->getTable()]);
     }
 
-    /**
-     * @return array
-     */
-    public function provideSelect()
+    public function provideSelect(): array
     {
         return [
             ['*'],
@@ -85,17 +78,17 @@ class DbQueryTest extends AbstractTestCase
     /**
      * @dataProvider provideSelect
      *
-     * @param $expected
-     * @param $fields
-     * @param $options
+     * @param string            $expected
+     * @param string|array|null $fields
+     * @param string|null       $options
      */
-    public function testSelect($expected, $fields = null, $options = null)
+    public function testSelect(string $expected, $fields = null, ?string $options = null): void
     {
         $db = $this->db()->select($fields, $options);
         $this->assertDbQuery($db, ['SELECT '.$expected, 'FROM '.$this->getTable().' AS self']);
     }
 
-    public function testJoin()
+    public function testJoin(): void
     {
         $db = $this->db()->select();
         $expected = ['SELECT *', 'FROM '.$this->getTable().' AS self'];
@@ -114,7 +107,7 @@ class DbQueryTest extends AbstractTestCase
         $this->assertDbQuery($db, $expected);
     }
 
-    public function testIndex()
+    public function testIndex(): void
     {
         $db = $this->db()->select()->index(['i1', 'i2']);
         $this->assertDbQuery($db, [
@@ -131,26 +124,19 @@ class DbQueryTest extends AbstractTestCase
         ]);
     }
 
-    /**
-     * @expectedException \Alhames\DbBundle\Exception\DbException
-     */
-    public function textIndexWithInvalidAction()
+    public function textIndexWithInvalidAction(): void
     {
+        $this->expectException(DbException::class);
         $this->db()->select()->index('main', 'CAT');
     }
 
-    /**
-     * @expectedException \Alhames\DbBundle\Exception\DbException
-     */
-    public function textIndexWithInvalidPurpose()
+    public function textIndexWithInvalidPurpose(): void
     {
+        $this->expectException(DbException::class);
         $this->db()->select()->index('main', 'USE', 'CAT');
     }
 
-    /**
-     * @return array
-     */
-    public function provideWhere()
+    public function provideWhere(): array
     {
         return [
             // Test Types
@@ -288,11 +274,11 @@ class DbQueryTest extends AbstractTestCase
     /**
      * @dataProvider provideWhere
      *
-     * @param $expected
-     * @param $params
-     * @param $statement
+     * @param string      $expected
+     * @param array|null  $params
+     * @param string|null $statement
      */
-    public function testWhere($expected, $params = null, $statement = null)
+    public function testWhere(string $expected, ?array $params = null, ?string $statement = null): void
     {
         $db = $this->db()
             ->select()
@@ -304,10 +290,7 @@ class DbQueryTest extends AbstractTestCase
         ]);
     }
 
-    /**
-     * @return array
-     */
-    public function provideOrderBy()
+    public function provideOrderBy(): array
     {
         return [
             ['`field` DESC', ['field' => 'DESC']],
@@ -325,10 +308,10 @@ class DbQueryTest extends AbstractTestCase
     /**
      * @dataProvider provideOrderBy
      *
-     * @param $expected
-     * @param $options
+     * @param string            $expected
+     * @param string|array|null $options
      */
-    public function testOrderBy($expected, $options)
+    public function testOrderBy(string $expected, $options): void
     {
         $db = $this->db()
             ->select()
@@ -340,7 +323,7 @@ class DbQueryTest extends AbstractTestCase
         ]);
     }
 
-    public function provideGroupBy()
+    public function provideGroupBy(): array
     {
         return [
             ['field', 'field'],
@@ -352,10 +335,10 @@ class DbQueryTest extends AbstractTestCase
     /**
      * @dataProvider provideGroupBy
      *
-     * @param $expected
-     * @param $options
+     * @param string            $expected
+     * @param string|array|null $options
      */
-    public function testGroupBy($expected, $options)
+    public function testGroupBy(string $expected, $options): void
     {
         $db = $this->db()
             ->select()
@@ -367,7 +350,7 @@ class DbQueryTest extends AbstractTestCase
         ]);
     }
 
-    public function testHaving()
+    public function testHaving(): void
     {
         $db = $this->db()->select()->groupBy(['field']);
 
@@ -380,13 +363,13 @@ class DbQueryTest extends AbstractTestCase
         ]);
     }
 
-    public function testOffset()
+    public function testOffset(): void
     {
         $db = $this->db()->select()->offset(2);
         $this->assertSame('SELECT *'.PHP_EOL.'FROM '.$this->getTable().' AS self'.PHP_EOL.'OFFSET 2', $db->getQuery());
     }
 
-    public function testLimit()
+    public function testLimit(): void
     {
         $db = $this->db()->select();
         $expectedPrefix = 'SELECT *'.PHP_EOL.'FROM '.$this->getTable().' AS self'.PHP_EOL.'LIMIT ';
@@ -398,7 +381,7 @@ class DbQueryTest extends AbstractTestCase
         $this->assertSame($expectedPrefix.'100'.PHP_EOL.'OFFSET 200', $db->getQuery());
     }
 
-    public function testSetPage()
+    public function testSetPage(): void
     {
         $db = $this->db()->select()->setPage(3, 10);
         $this->assertDbQuery($db, [
@@ -409,7 +392,7 @@ class DbQueryTest extends AbstractTestCase
         ]);
     }
 
-    public function testInsert()
+    public function testInsert(): void
     {
         $db = $this->db()->insert([
             'int' => 1,
@@ -444,7 +427,7 @@ class DbQueryTest extends AbstractTestCase
         ]);
     }
 
-    public function testUpdate()
+    public function testUpdate(): void
     {
         $db = $this->db()
             ->update([
@@ -472,15 +455,13 @@ class DbQueryTest extends AbstractTestCase
         ]);
     }
 
-    /**
-     * @expectedException \Alhames\DbBundle\Exception\DbException
-     */
-    public function testUpdateException()
+    public function testUpdateException(): void
     {
+        $this->expectException(DbException::class);
         $this->db()->update(['field' => 1])->getQuery();
     }
 
-    public function testDelete()
+    public function testDelete(): void
     {
         $db = $this->db()
             ->delete()
@@ -499,15 +480,13 @@ class DbQueryTest extends AbstractTestCase
         ]);
     }
 
-    /**
-     * @expectedException \Alhames\DbBundle\Exception\DbException
-     */
-    public function testDeleteException()
+    public function testDeleteException(): void
     {
+        $this->expectException(DbException::class);
         $this->db()->delete()->getQuery();
     }
 
-    public function testReplace()
+    public function testReplace(): void
     {
         $db = $this->db()->replace([
             'int' => 1,
@@ -522,7 +501,7 @@ class DbQueryTest extends AbstractTestCase
         ]);
     }
 
-    public function testSubQuery()
+    public function testSubQuery(): void
     {
         $subQuery = $this->db()->select()->where(['id' => 1]);
         $db = $this->db($subQuery)->select()->limit(1);
@@ -538,16 +517,14 @@ class DbQueryTest extends AbstractTestCase
         ]);
     }
 
-    /**
-     * @expectedException \Alhames\DbBundle\Exception\DbException
-     */
-    public function testSubQueryException()
+    public function testSubQueryException(): void
     {
+        $this->expectException(DbException::class);
         $subQuery = $this->db()->select()->where(['id' => 1]);
         $this->db($subQuery)->insert(['a' => 'b'])->getQuery();
     }
 
-    public function testOnDuplicateKey()
+    public function testOnDuplicateKey(): void
     {
         $db = $this->db()->insert(['field' => 1])->onDuplicateKey(['field' => 2]);
         $this->assertDbQuery($db, [
@@ -582,7 +559,7 @@ class DbQueryTest extends AbstractTestCase
         ]);
     }
 
-    public function testSetCaching()
+    public function testSetCaching(): void
     {
         $db = $this->db()->select()->setCaching('key', 60, true);
         $this->assertAttributeSame('key', 'cacheKey', $db);
@@ -590,15 +567,13 @@ class DbQueryTest extends AbstractTestCase
         $this->assertAttributeSame(true, 'cacheRebuild', $db);
     }
 
-    /**
-     * @expectedException \Alhames\DbBundle\Exception\DbException
-     */
-    public function testSetCachingException()
+    public function testSetCachingException(): void
     {
+        $this->expectException(DbException::class);
         $this->db()->delete()->setCaching('key', 60, true);
     }
 
-    public function testGetRow()
+    public function testGetRow(): void
     {
         $result = [
             ['id' => 1, 'name' => 'Ippolit'],
@@ -645,11 +620,7 @@ class DbQueryTest extends AbstractTestCase
         ], $db->getRows('name', 'id', true));
     }
 
-    /**
-     * @param DbQuery $db
-     * @param array   $expected
-     */
-    protected function assertDbQuery(DbQuery $db, array $expected)
+    protected function assertDbQuery(DbQuery $db, array $expected): void
     {
         $this->assertSame(implode(PHP_EOL, $expected), $db->getQuery());
     }
