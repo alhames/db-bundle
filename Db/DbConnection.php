@@ -8,38 +8,19 @@ use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
-/**
- * Class Sql.
- */
 class DbConnection
 {
-    const CR_SERVER_GONE_ERROR = 2006;
+    public const CR_SERVER_GONE_ERROR = 2006;
 
-    /** @var array */
-    protected $config;
+    protected array $config;
+    protected string $alias;
+    protected bool $connected;
 
-    /** @var \mysqli */
-    protected $mysqli;
+    protected ?\mysqli $mysqli = null;
+    protected ?CacheInterface $cache = null;
+    protected ?DbQueryFormatterInterface $queryFormatter = null;
+    protected ?LoggerInterface $logger = null;
 
-    /** @var CacheInterface */
-    protected $cache;
-
-    /** @var string */
-    protected $alias;
-
-    /** @var bool */
-    protected $connected;
-
-    /** @var DbQueryFormatterInterface */
-    protected $queryFormatter;
-
-    /** @var LoggerInterface */
-    protected $logger;
-
-    /**
-     * @param array  $config
-     * @param string $alias
-     */
     public function __construct(array $config, string $alias = 'default')
     {
         $this->config = $config;
@@ -47,9 +28,6 @@ class DbConnection
         $this->connected = false;
     }
 
-    /**
-     * @return string
-     */
     public function getAlias(): string
     {
         return $this->alias;
@@ -60,7 +38,7 @@ class DbConnection
      *
      * @return static
      */
-    public function connect()
+    public function connect(): DbConnection
     {
         if ($this->connected) {
             return $this;
@@ -105,7 +83,7 @@ class DbConnection
      *
      * @return static
      */
-    public function setCache(?CacheInterface $cache = null)
+    public function setCache(?CacheInterface $cache = null): DbConnection
     {
         $this->cache = $cache;
 
@@ -117,7 +95,7 @@ class DbConnection
      *
      * @return static
      */
-    public function setQueryFormatter(?DbQueryFormatterInterface $queryFormatter = null)
+    public function setQueryFormatter(?DbQueryFormatterInterface $queryFormatter = null): DbConnection
     {
         $this->queryFormatter = $queryFormatter;
 
@@ -129,7 +107,7 @@ class DbConnection
      *
      * @return static
      */
-    public function setLogger(?LoggerInterface $logger = null)
+    public function setLogger(?LoggerInterface $logger = null): DbConnection
     {
         $this->logger = $logger;
 
@@ -139,7 +117,7 @@ class DbConnection
     /**
      * @param string      $query
      * @param string|null $cacheKey
-     * @param int|null    $cacheTime Timeout in seconds, must be greater than 0.
+     * @param int|null    $cacheTime    Timeout in seconds, must be greater than 0.
      * @param bool        $cacheRebuild
      *
      * @return array
@@ -180,45 +158,26 @@ class DbConnection
         return $result;
     }
 
-    /**
-     * @param string $string
-     *
-     * @return string
-     */
     public function escape(string $string): string
     {
         return $this->connect()->mysqli->escape_string($string);
     }
 
-    /**
-     * @param string $string
-     *
-     * @return string
-     */
     public function escapeLike(string $string): string
     {
         return Db::escapeLike($string);
     }
 
-    /**
-     * @return int
-     */
     public function getInsertId(): int
     {
         return (int) $this->connect()->mysqli->insert_id;
     }
 
-    /**
-     * @return int
-     */
     public function getAffectedRows(): int
     {
         return (int) $this->connect()->mysqli->affected_rows;
     }
 
-    /**
-     * @return int
-     */
     public function getFoundRows(): int
     {
         $result = $this->connect()->mysqli->query('SELECT FOUND_ROWS()');
@@ -231,7 +190,7 @@ class DbConnection
     /**
      * @return static
      */
-    public function close()
+    public function close(): DbConnection
     {
         if ($this->connected) {
             $this->mysqli->close();
@@ -246,7 +205,7 @@ class DbConnection
     /**
      * @return static
      */
-    public function reconnect()
+    public function reconnect(): DbConnection
     {
         return $this->close()->connect();
     }
@@ -254,7 +213,7 @@ class DbConnection
     /**
      * @throws ExecutionException
      */
-    public function beginTransaction()
+    public function beginTransaction(): void
     {
         $this->connect();
 
@@ -270,7 +229,7 @@ class DbConnection
     /**
      * @throws ExecutionException
      */
-    public function commit()
+    public function commit(): void
     {
         $this->connect();
 
@@ -286,7 +245,7 @@ class DbConnection
     /**
      * @throws ExecutionException
      */
-    public function rollback()
+    public function rollback(): void
     {
         $this->connect();
 
@@ -357,12 +316,6 @@ class DbConnection
         return [$result, $connectTime, $queryTime];
     }
 
-    /**
-     * @param string|null     $query
-     * @param \Throwable|null $exception
-     *
-     * @return ExecutionException
-     */
     protected function createException(?string $query = null, ?\Throwable $exception = null): ExecutionException
     {
         return new ExecutionException($this->alias, $this->mysqli->error, $this->mysqli->errno, $exception, $query);

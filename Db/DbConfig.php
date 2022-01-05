@@ -4,31 +4,15 @@ namespace Alhames\DbBundle\Db;
 
 use Alhames\DbBundle\Exception\DbException;
 
-/**
- * Class DbConfig.
- */
 class DbConfig
 {
-    /** @var array */
-    private $tables;
+    private array $tables;
 
-    /**
-     * DbConfig constructor.
-     *
-     * @param array $tables
-     */
     public function __construct(array $tables = [])
     {
         $this->tables = $tables;
     }
 
-    /**
-     * @param string $alias
-     *
-     * @throws DbException
-     *
-     * @return array
-     */
     public function get(string $alias): array
     {
         if (!isset($this->tables[$alias])) {
@@ -38,13 +22,6 @@ class DbConfig
         return $this->tables[$alias];
     }
 
-    /**
-     * @param string $alias
-     *
-     * @throws DbException
-     *
-     * @return string
-     */
     public function getTable(string $alias): string
     {
         if (!isset($this->tables[$alias])) {

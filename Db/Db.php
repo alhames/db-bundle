@@ -2,14 +2,11 @@
 
 namespace Alhames\DbBundle\Db;
 
-/**
- * Class Db.
- */
 class Db
 {
-    const CALC_FOUND_ROWS = 'SQL_CALC_FOUND_ROWS';
-    const DISTINCT = 'DISTINCT';
-    const IGNORE = 'IGNORE';
+    public const CALC_FOUND_ROWS = 'SQL_CALC_FOUND_ROWS';
+    public const DISTINCT = 'DISTINCT';
+    public const IGNORE = 'IGNORE';
 
     /**
      * @param string $operator

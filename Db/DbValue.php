@@ -2,19 +2,12 @@
 
 namespace Alhames\DbBundle\Db;
 
-/**
- * Class DbValue.
- */
 class DbValue
 {
     /** @var mixed */
     public $value;
-
-    /** @var string */
-    public $operator;
-
-    /** @var bool */
-    public $isField;
+    public string $operator;
+    public bool $isField;
 
     /**
      * @param mixed  $value

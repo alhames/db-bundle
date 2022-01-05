@@ -4,24 +4,13 @@ namespace Alhames\DbBundle\Db;
 
 use Alhames\DbBundle\Exception\DbException;
 
-/**
- * trait DbManagerAwareTrait.
- */
 trait DbManagerAwareTrait
 {
-    /** @var DbManager */
-    protected $dbm;
+    protected ?DbManager $dbm = null;
 
-    /**
-     * @param DbManager $dbm
-     *
-     * @return static
-     */
-    public function setDbManager(DbManager $dbm)
+    public function setDbManager(DbManager $dbm): void
     {
         $this->dbm = $dbm;
-
-        return $this;
     }
 
     /**
