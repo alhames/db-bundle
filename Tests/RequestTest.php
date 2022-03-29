@@ -5,12 +5,9 @@ namespace Alhames\DbBundle\Tests;
 
 use Alhames\DbBundle\Db\Db;
 
-/**
- * Class RequestTest.
- */
 class RequestTest extends AbstractTestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $connection = $this->dbm->getConnection();
@@ -26,13 +23,13 @@ class RequestTest extends AbstractTestCase
         $connection->query('INSERT INTO '.$this->getTable().' (`name`) VALUES ("a"), ("b"), ("c"), ("d")');
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->dbm->getConnection()->query('DROP TABLE '.$this->getTable());
         parent::tearDown();
     }
 
-    public function testInsert()
+    public function testInsert(): void
     {
         $insertId = $this->db()->insert(['name' => 'aaa'])->getInsertId();
         $this->assertSame(5, $insertId);
@@ -49,7 +46,7 @@ class RequestTest extends AbstractTestCase
     /**
      * @depends testInsert
      */
-    public function testSelect()
+    public function testSelect(): void
     {
         $time = new \DateTimeImmutable('+1hour', new \DateTimeZone('UTC'));
         $insertId = $this->db()->insert(['name' => 'aaa', 'time' => $time])->getInsertId();
@@ -79,7 +76,7 @@ class RequestTest extends AbstractTestCase
     /**
      * @depends testSelect
      */
-    public function testUpdate()
+    public function testUpdate(): void
     {
         $this->db()
             ->update(['name' => 'z'])
@@ -96,7 +93,7 @@ class RequestTest extends AbstractTestCase
     /**
      * @depends testUpdate
      */
-    public function testDelete()
+    public function testDelete(): void
     {
         $this->db()
             ->delete()
@@ -115,18 +112,13 @@ class RequestTest extends AbstractTestCase
     /**
      * @depends testDelete
      */
-    public function testTruncate()
+    public function testTruncate(): void
     {
         $this->db()->truncate()->disableSecurity()->exec();
         $this->assertSame(0, $this->getRowCount());
     }
 
-    /**
-     * @param string $where
-     *
-     * @return int
-     */
-    protected function getRowCount(string $where = '')
+    protected function getRowCount(string $where = ''): int
     {
         $result = $this->dbm->getConnection()
             ->query('SELECT COUNT(*) AS c FROM '.$this->getTable().($where ? ' WHERE '.$where : ''));

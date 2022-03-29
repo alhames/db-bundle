@@ -5,15 +5,10 @@ namespace Alhames\DbBundle\DependencyInjection;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-/**
- * Class Configuration.
- */
 class Configuration implements ConfigurationInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigTreeBuilder()
+
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('alhames_db');
         $rootNode = $treeBuilder->getRootNode();
@@ -63,8 +58,7 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
 
-            ->end()
-        ;
+            ->end();
 
         return $treeBuilder;
     }

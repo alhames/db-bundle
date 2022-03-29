@@ -6,37 +6,19 @@ use Alhames\DbBundle\Exception\DbException;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
-/**
- * Class DbManager.
- */
 class DbManager
 {
-    /** @var DbConfig */
-    protected $dbConfig;
+    protected DbConfig $dbConfig;
+    protected array $config;
+    protected string $defaultConnection;
 
-    /** @var array */
-    protected $config;
-
-    /** @var string */
-    protected $defaultConnection;
-
-    /** @var CacheInterface */
-    protected $cache;
-
-    /** @var DbQueryFormatterInterface */
-    protected $queryFormatter;
-
-    /** @var LoggerInterface */
-    protected $logger;
+    protected ?CacheInterface $cache = null;
+    protected ?DbQueryFormatterInterface $queryFormatter = null;
+    protected ?LoggerInterface $logger = null;
 
     /** @var DbConnection[] */
-    protected $connections = [];
+    protected array $connections = [];
 
-    /**
-     * @param DbConfig $dbConfig
-     * @param array    $config
-     * @param string   $defaultConnection
-     */
     public function __construct(DbConfig $dbConfig, array $config, string $defaultConnection = 'default')
     {
         $this->dbConfig = $dbConfig;
@@ -45,24 +27,14 @@ class DbManager
         mysqli_report(MYSQLI_REPORT_STRICT);
     }
 
-    /**
-     * @param string $defaultConnection
-     *
-     * @return static
-     */
-    public function setDefaultConnection(string $defaultConnection)
+    public function setDefaultConnection(string $defaultConnection): DbManager
     {
         $this->defaultConnection = $defaultConnection;
 
         return $this;
     }
 
-    /**
-     * @param CacheInterface|null $cache
-     *
-     * @return static
-     */
-    public function setCache(?CacheInterface $cache = null)
+    public function setCache(?CacheInterface $cache = null): DbManager
     {
         $this->cache = $cache;
         foreach ($this->connections as $connection) {
@@ -72,12 +44,7 @@ class DbManager
         return $this;
     }
 
-    /**
-     * @param DbQueryFormatterInterface|null $queryFormatter
-     *
-     * @return static
-     */
-    public function setQueryFormatter(?DbQueryFormatterInterface $queryFormatter = null)
+    public function setQueryFormatter(?DbQueryFormatterInterface $queryFormatter = null): DbManager
     {
         $this->queryFormatter = $queryFormatter;
         foreach ($this->connections as $connection) {
@@ -87,12 +54,7 @@ class DbManager
         return $this;
     }
 
-    /**
-     * @param LoggerInterface|null $logger
-     *
-     * @return static
-     */
-    public function setLogger(?LoggerInterface $logger = null)
+    public function setLogger(?LoggerInterface $logger = null): DbManager
     {
         $this->logger = $logger;
         foreach ($this->connections as $connection) {
@@ -103,11 +65,7 @@ class DbManager
     }
 
     /**
-     * @param string $table
-     *
      * @throws DbException
-     *
-     * @return array
      */
     public function getConfig(string $table): array
     {
@@ -118,8 +76,6 @@ class DbManager
      * @param string|DbQuery $alias
      *
      * @throws DbException
-     *
-     * @return DbQuery
      */
     public function db($alias): DbQuery
     {
@@ -134,11 +90,6 @@ class DbManager
         return new DbQuery($alias, $connection, $this->dbConfig);
     }
 
-    /**
-     * @param string $alias
-     *
-     * @return DbConnection
-     */
     public function getConnection(?string $alias = null): DbConnection
     {
         if (null === $alias) {

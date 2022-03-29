@@ -7,18 +7,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollectorInterface;
 
-/**
- * Class DbDataCollector.
- */
 class DbDataCollector extends AbstractLogger implements DataCollectorInterface
 {
-    /** @var array */
-    protected $data = [];
+    protected array $data = [];
 
-    /**
-     * {@inheritdoc}
-     */
-    public function log($level, $message, array $context = [])
+    public function log($level, $message, array $context = []): void
     {
         // disabled for console requests
         if ('cli' === PHP_SAPI) {
@@ -27,48 +20,30 @@ class DbDataCollector extends AbstractLogger implements DataCollectorInterface
         $this->data[] = array_merge($context, ['query' => $message, 'level' => $level]);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function collect(Request $request, Response $response, \Throwable $exception = null)
     {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function getName(): string
     {
         return 'alhames_db';
     }
 
-    /**
-     * @return float
-     */
     public function getTime(): float
     {
         return array_sum(array_column($this->data, 'total_time'));
     }
 
-    /**
-     * @return int
-     */
     public function getCount(): int
     {
         return count($this->data);
     }
 
-    /**
-     * @return int
-     */
     public function getCacheHitsCount(): int
     {
         return array_sum(array_column($this->data, 'is_cached'));
     }
 
-    /**
-     * @return array
-     */
     public function getQueries(): array
     {
         $pattern = "#(SELECT|FROM|INSERT|UPDATE|SET|DELETE|REPLACE|TRUNCATE|INNER|LEFT|JOIN|WHERE|LIMIT|ORDER BY|GROUP BY|AND|OR|IS|ASC|DESC|AS|NOT|IN|ON|DISTINCT)#";
@@ -83,9 +58,6 @@ class DbDataCollector extends AbstractLogger implements DataCollectorInterface
         return $this->data;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function reset()
     {
         $this->data = [];

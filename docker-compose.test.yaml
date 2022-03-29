@@ -1,0 +1,16 @@
+version: '3.5'
+
+services:
+
+  php:
+    image: 'alhames/php:8.0-base'
+    container_name: 'alhames_db_php'
+    working_dir: '/srv/alhames_db'
+    volumes:
+      - '.:/srv/alhames_db'
+
+  mysql:
+    image: 'mariadb:10.5'
+    container_name: 'alhames_db_mysql'
+    environment:
+      MYSQL_ROOT_PASSWORD: 'test-password'

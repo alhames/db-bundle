@@ -4,87 +4,39 @@ namespace Alhames\DbBundle\Db;
 
 use Alhames\DbBundle\Exception\DbException;
 
-/**
- * Class DbQuery.
- */
 class DbQuery
 {
-    /** @var string */
-    protected $alias;
+    protected string $alias;
+    protected DbConnection $connection;
+    protected DbConfig $config;
+    protected ?DbQuery $subQuery = null;
+    protected bool $securityEnable = true;
 
-    /** @var DbConnection */
-    protected $connection;
+    protected string $method = '';
+    protected ?string $options = null;
+    protected ?string $fields = null;
+    protected array $join = [];
+    protected array $index = [];
+    protected ?string $where = null;
+    protected ?string $groupBy = null;
+    protected ?string $orderBy = null;
+    protected ?string $having = null;
+    protected ?int $limit = null;
+    protected ?int $offset = null;
+    protected ?string $set = null;
+    protected ?string $insert = null;
+    protected ?string $onDuplicate = null;
 
-    /** @var DbConfig */
-    protected $config;
-
-    /** @var static */
-    protected $subQuery;
-
-    /** @var bool */
-    protected $securityEnable = true;
+    protected ?string $cacheKey = null;
+    protected ?int $cacheTime = null;
+    protected bool $cacheRebuild = false;
 
     /** @var array|bool */
     protected $result;
-
-    /** @var string */
-    protected $method = '';
-
-    /** @var string */
-    protected $options;
-
-    /** @var string */
-    protected $fields;
-
-    /** @var array */
-    protected $join = [];
-
-    /** @var array */
-    protected $index = [];
-
-    /** @var string */
-    protected $where;
-
-    /** @var string */
-    protected $groupBy;
-
-    /** @var string */
-    protected $orderBy;
-
-    /** @var string */
-    protected $having;
-
-    /** @var int */
-    protected $limit;
-
-    /** @var int */
-    protected $offset;
-
-    /** @var string */
-    protected $set;
-
-    /** @var string */
-    protected $insert;
-
-    /** @var string */
-    protected $onDuplicate;
-
-    /** @var string */
-    protected $cacheKey;
-
-    /** @var string */
-    protected $cacheTime;
-
-    /** @var bool */
-    protected $cacheRebuild = false;
-
-    /** @var int */
-    protected $rowCount;
+    protected int $rowCount;
 
     /**
      * @param string|DbQuery $alias
-     * @param DbConnection   $connection
-     * @param DbConfig       $config
      */
     public function __construct($alias, DbConnection $connection, DbConfig $config)
     {
@@ -99,52 +51,40 @@ class DbQuery
         }
     }
 
-    /**
-     * @return string
-     */
     public function getAlias(): string
     {
         return $this->alias;
     }
 
-    /**
-     * @return string
-     */
     public function getTable(): string
     {
         return $this->config->getTable($this->alias);
     }
 
-    /**
-     * @return string
-     */
     public function getMethod(): string
     {
         return $this->method;
     }
 
-    public function beginTransaction()
+    public function beginTransaction(): void
     {
         $this->connection->beginTransaction();
     }
 
-    public function commit()
+    public function commit(): void
     {
         $this->connection->commit();
     }
 
-    public function rollback()
+    public function rollback(): void
     {
         $this->connection->rollback();
     }
 
     /**
      * @param array|string $fields
-     * @param string       $options
-     *
-     * @return static
      */
-    public function select($fields = null, string $options = null)
+    public function select($fields = null, ?string $options = null): DbQuery
     {
         $this->method = 'select';
         $this->options = $options;
@@ -153,13 +93,7 @@ class DbQuery
         return $this;
     }
 
-    /**
-     * @param array  $data
-     * @param string $options
-     *
-     * @return static
-     */
-    public function insert(array $data, string $options = null)
+    public function insert(array $data, ?string $options = null): DbQuery
     {
         $this->options = $options;
 
@@ -174,13 +108,7 @@ class DbQuery
         return $this;
     }
 
-    /**
-     * @param array  $data
-     * @param string $options
-     *
-     * @return static
-     */
-    public function update(array $data, string $options = null)
+    public function update(array $data, ?string $options = null): DbQuery
     {
         $this->method = 'update';
         $this->options = $options;
@@ -189,13 +117,7 @@ class DbQuery
         return $this;
     }
 
-    /**
-     * @param array  $data
-     * @param string $options
-     *
-     * @return static
-     */
-    public function replace(array $data, string $options = null)
+    public function replace(array $data, ?string $options = null): DbQuery
     {
         $this->method = 'replace';
         $this->options = $options;
@@ -204,12 +126,7 @@ class DbQuery
         return $this;
     }
 
-    /**
-     * @param string $options
-     *
-     * @return static
-     */
-    public function delete(string $options = null)
+    public function delete(?string $options = null): DbQuery
     {
         $this->method = 'delete';
         $this->options = $options;
@@ -217,30 +134,21 @@ class DbQuery
         return $this;
     }
 
-    /**
-     * @return static
-     */
-    public function truncate()
+    public function truncate(): DbQuery
     {
         $this->method = 'truncate';
 
         return $this;
     }
 
-    /**
-     * @return static
-     */
-    public function optimize()
+    public function optimize(): DbQuery
     {
         $this->method = 'optimize';
 
         return $this;
     }
 
-    /**
-     * @return static
-     */
-    public function disableSecurity()
+    public function disableSecurity(): DbQuery
     {
         $this->securityEnable = false;
 
@@ -248,21 +156,17 @@ class DbQuery
     }
 
     /**
-     * @param string       $table
-     * @param string       $alias
-     * @param string|array $relationStatement
-     * @param string       $type              Allow types: INNER (default), LEFT, RIGHT
+     * @param string $type Allow types: INNER (default), LEFT, RIGHT
      *
      * @throws DbException
-     *
-     * @return static
      */
-    public function join(string $table, string $alias, $relationStatement, string $type = 'INNER')
+    public function join(string $table, string $alias, array $relationStatement, string $type = 'INNER'): DbQuery
     {
-        if (is_array($relationStatement)) {
-            $relationStatement = $this->prepareWhereStatement($relationStatement);
+        if (!in_array($type, ['INNER', 'LEFT', 'RIGHT'], true)) {
+            throw new DbException($this->connection->getAlias(), sprintf('Invalid join type "%s"', $type));
         }
 
+        $relationStatement = $this->prepareWhereStatement($relationStatement);
         $this->join[] = $type.' JOIN '.$this->config->getTable($table).' AS `'.$alias.'` ON ('.$relationStatement.')';
 
         return $this;
@@ -274,10 +178,8 @@ class DbQuery
      * @param string|null  $purpose   Allow values: JOIN, ORDER BY, GROUP BY, empty (default)
      *
      * @throws DbException
-     *
-     * @return static
      */
-    public function index($indexList, string $action = 'USE', string $purpose = null)
+    public function index($indexList, string $action = 'USE', ?string $purpose = null): DbQuery
     {
         if (!in_array($action, ['USE', 'FORCE', 'IGNORE'], true)) {
             throw new DbException($this->connection->getAlias(), sprintf('Invalid action "%s"', $action));
@@ -300,13 +202,7 @@ class DbQuery
         return $this;
     }
 
-    /**
-     * @param mixed       $params
-     * @param string|null $statement
-     *
-     * @return static
-     */
-    public function where(array $params = null, string $statement = null)
+    public function where(?array $params = null, ?string $statement = null): DbQuery
     {
         if (null === $params) {
             $this->where = $statement;
@@ -319,23 +215,15 @@ class DbQuery
 
     /**
      * @param string|array|null $options
-     *
-     * @return static
      */
-    public function groupBy($options)
+    public function groupBy($options): DbQuery
     {
         $this->groupBy = $this->prepareOrderByStatement($options);
 
         return $this;
     }
 
-    /**
-     * @param array       $params
-     * @param string|null $statement
-     *
-     * @return static
-     */
-    public function having(array $params = null, string $statement = null)
+    public function having(?array $params = null, ?string $statement = null): DbQuery
     {
         if (null === $params) {
             $this->having = $statement;
@@ -348,47 +236,29 @@ class DbQuery
 
     /**
      * @param string|array $options
-     *
-     * @return static
      */
-    public function orderBy($options)
+    public function orderBy($options): DbQuery
     {
         $this->orderBy = $this->prepareOrderByStatement($options);
 
         return $this;
     }
 
-    /**
-     * @param int|null $limit
-     *
-     * @return static
-     */
-    public function limit(int $limit = null)
+    public function limit(?int $limit = null): DbQuery
     {
         $this->limit = $limit;
 
         return $this;
     }
 
-    /**
-     * @param int|null $offset
-     *
-     * @return static
-     */
-    public function offset(int $offset = null)
+    public function offset(?int $offset = null): DbQuery
     {
         $this->offset = $offset;
 
         return $this;
     }
 
-    /**
-     * @param int $page
-     * @param int $count
-     *
-     * @return static
-     */
-    public function setPage(int $page, int $count)
+    public function setPage(int $page, int $count): DbQuery
     {
         $this->offset = ($page - 1) * $count;
         $this->limit = $count;
@@ -396,12 +266,7 @@ class DbQuery
         return $this;
     }
 
-    /**
-     * @param array $data
-     *
-     * @return static
-     */
-    public function onDuplicateKey(array $data)
+    public function onDuplicateKey(array $data): DbQuery
     {
         $this->onDuplicate = $this->prepareSetStatement($data);
 
@@ -409,15 +274,9 @@ class DbQuery
     }
 
     /**
-     * @param string $key
-     * @param int    $time
-     * @param bool   $isRebuild
-     *
      * @throws DbException
-     *
-     * @return static
      */
-    public function setCaching(string $key, int $time, bool $isRebuild = false)
+    public function setCaching(string $key, int $time, bool $isRebuild = false): DbQuery
     {
         if ('select' !== $this->method) {
             throw new DbException($this->connection->getAlias(), 'Cache available only for SELECT');
@@ -430,14 +289,7 @@ class DbQuery
         return $this;
     }
 
-    /**
-     * @param string|null $key
-     * @param string|null $field
-     * @param bool        $isGroup
-     *
-     * @return array
-     */
-    public function getRows(string $key = null, string $field = null, bool $isGroup = false): array
+    public function getRows(?string $key = null, ?string $field = null, bool $isGroup = false): array
     {
         $this->exec();
 
@@ -473,9 +325,7 @@ class DbQuery
     }
 
     /**
-     * @param string $field
-     *
-     * @return mixed
+     * @return bool|array|string|null
      */
     public function getRow(string $field = null)
     {
@@ -492,10 +342,7 @@ class DbQuery
         return $this->result[0][$field];
     }
 
-    /**
-     * @return int
-     */
-    public function getRowCount(): int
+    public function getRowCount(): ?int
     {
         $this->exec();
 
@@ -506,17 +353,11 @@ class DbQuery
         return $this->rowCount;
     }
 
-    /**
-     * @return int
-     */
     public function getPageCount(): int
     {
         return (int) ceil($this->getRowCount() / $this->limit);
     }
 
-    /**
-     * @return int
-     */
     public function getInsertId(): int
     {
         $this->exec();
@@ -524,7 +365,7 @@ class DbQuery
         return $this->connection->getInsertId();
     }
 
-    public function exec()
+    public function exec(): void
     {
         if (null !== $this->result) {
             return;
@@ -538,8 +379,6 @@ class DbQuery
 
     /**
      * @throws DbException
-     *
-     * @return string
      */
     public function getQuery(): string
     {
@@ -723,21 +562,13 @@ class DbQuery
         }
     }
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
         return $this->getQuery();
     }
 
     /**
-     * @param string $name
-     * @param string $operator
-     *
      * @throws DbException
-     *
-     * @return string
      */
     protected function prepareFieldStatement(string $name, string $operator = '='): string
     {
@@ -749,12 +580,9 @@ class DbQuery
     }
 
     /**
-     * @param mixed  $value
-     * @param string $operator
+     * @param mixed $value
      *
      * @throws DbException
-     *
-     * @return string
      */
     protected function prepareValueStatement($value, string $operator = '='): string
     {
@@ -796,13 +624,6 @@ class DbQuery
         return $operator.' '.$this->prepareValue($value);
     }
 
-    /**
-     * Подготавливает список полей для SELECT.
-     *
-     * @param array|string $fields
-     *
-     * @return string
-     */
     protected function prepareFields($fields = null): string
     {
         if (null === $fields || '*' === $fields) {
@@ -830,13 +651,6 @@ class DbQuery
         return $fields;
     }
 
-    /**
-     * Приводит название поля в безопасный вид.
-     *
-     * @param string $name
-     *
-     * @return string
-     */
     protected function prepareField(string $name): string
     {
         $name = trim($name);
@@ -852,8 +666,6 @@ class DbQuery
      * @param mixed $value
      *
      * @throws DbException
-     *
-     * @return string
      */
     protected function prepareValue($value): string
     {
@@ -874,11 +686,6 @@ class DbQuery
         throw new DbException($this->connection->getAlias(), 'Invalid argument');
     }
 
-    /**
-     * @param array $params
-     *
-     * @return string
-     */
     protected function prepareWhereStatement(array $params): string
     {
         $parts = []; // todo
@@ -900,10 +707,8 @@ class DbQuery
 
     /**
      * @param array|string|null $options
-     *
-     * @return string|null
      */
-    protected function prepareOrderByStatement($options)
+    protected function prepareOrderByStatement($options): ?string
     {
         if (is_array($options)) {
             $optionsArray = [];
@@ -921,11 +726,6 @@ class DbQuery
         return $options;
     }
 
-    /**
-     * @param array $params
-     *
-     * @return string
-     */
     protected function prepareSetStatement(array $params): string
     {
         $data = [];
@@ -944,11 +744,6 @@ class DbQuery
         return implode(', ', $data);
     }
 
-    /**
-     * @param array $params
-     *
-     * @return string
-     */
     protected function prepareMultiInsertStatement(array $params): string
     {
         $fields = array_keys($params[0]);
