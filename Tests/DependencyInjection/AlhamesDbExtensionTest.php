@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace DbBundle\Tests\DependencyInjection;
+namespace Alhames\DbBundle\Tests\DependencyInjection;
 
 use Alhames\DbBundle\DataCollector\DbDataCollector;
 use Alhames\DbBundle\Db\DbConfig;
@@ -29,8 +29,6 @@ class AlhamesDbExtensionTest extends TestCase
 
     protected function getConfig(string $name = 'default'): array
     {
-        $yaml = file_get_contents(__DIR__.'/../Fixtures/config/'.$name.'.yml');
-
-        return Yaml::parse($yaml)['alhames_db'];
+        return Yaml::parseFile(__DIR__.'/../Fixtures/config/'.$name.'.yml')['alhames_db'];
     }
 }

@@ -9,10 +9,7 @@ class Db
     public const IGNORE = 'IGNORE';
 
     /**
-     * @param string $operator
-     * @param mixed  $value
-     *
-     * @return DbValue
+     * @param mixed $value
      */
     public static function value(string $operator, $value): DbValue
     {
@@ -22,8 +19,6 @@ class Db
     /**
      * @param mixed $from
      * @param mixed $to
-     *
-     * @return DbValue
      */
     public static function between($from, $to): DbValue
     {
@@ -32,8 +27,6 @@ class Db
 
     /**
      * @param mixed $value
-     *
-     * @return DbValue
      */
     public static function less($value): DbValue
     {
@@ -42,8 +35,6 @@ class Db
 
     /**
      * @param mixed $value
-     *
-     * @return DbValue
      */
     public static function more($value): DbValue
     {
@@ -52,8 +43,6 @@ class Db
 
     /**
      * @param mixed $value
-     *
-     * @return DbValue
      */
     public static function not($value): DbValue
     {
@@ -62,30 +51,17 @@ class Db
 
     /**
      * @param mixed $value
-     *
-     * @return DbValue
      */
     public static function like($value): DbValue
     {
         return new DbValue($value, 'LIKE', false);
     }
 
-    /**
-     * @param string $name
-     * @param string $operator
-     *
-     * @return DbValue
-     */
     public static function field(string $name, string $operator = '='): DbValue
     {
         return new DbValue($name, $operator, true);
     }
 
-    /**
-     * @param string $string
-     *
-     * @return string
-     */
     public static function escapeLike(string $string): string
     {
         return addcslashes($string, '_%\\');

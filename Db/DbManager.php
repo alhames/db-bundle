@@ -27,11 +27,6 @@ class DbManager
         mysqli_report(MYSQLI_REPORT_STRICT);
     }
 
-    /**
-     * @param string $defaultConnection
-     *
-     * @return static
-     */
     public function setDefaultConnection(string $defaultConnection): DbManager
     {
         $this->defaultConnection = $defaultConnection;
@@ -39,11 +34,6 @@ class DbManager
         return $this;
     }
 
-    /**
-     * @param CacheInterface|null $cache
-     *
-     * @return static
-     */
     public function setCache(?CacheInterface $cache = null): DbManager
     {
         $this->cache = $cache;
@@ -54,11 +44,6 @@ class DbManager
         return $this;
     }
 
-    /**
-     * @param DbQueryFormatterInterface|null $queryFormatter
-     *
-     * @return static
-     */
     public function setQueryFormatter(?DbQueryFormatterInterface $queryFormatter = null): DbManager
     {
         $this->queryFormatter = $queryFormatter;
@@ -69,11 +54,6 @@ class DbManager
         return $this;
     }
 
-    /**
-     * @param LoggerInterface|null $logger
-     *
-     * @return static
-     */
     public function setLogger(?LoggerInterface $logger = null): DbManager
     {
         $this->logger = $logger;
@@ -85,11 +65,7 @@ class DbManager
     }
 
     /**
-     * @param string $table
-     *
      * @throws DbException
-     *
-     * @return array
      */
     public function getConfig(string $table): array
     {
@@ -100,8 +76,6 @@ class DbManager
      * @param string|DbQuery $alias
      *
      * @throws DbException
-     *
-     * @return DbQuery
      */
     public function db($alias): DbQuery
     {
@@ -116,11 +90,6 @@ class DbManager
         return new DbQuery($alias, $connection, $this->dbConfig);
     }
 
-    /**
-     * @param string|null $alias
-     *
-     * @return DbConnection
-     */
     public function getConnection(?string $alias = null): DbConnection
     {
         if (null === $alias) {

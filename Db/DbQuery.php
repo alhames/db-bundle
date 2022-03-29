@@ -27,8 +27,8 @@ class DbQuery
     protected ?string $insert = null;
     protected ?string $onDuplicate = null;
 
-    protected string $cacheKey;
-    protected string $cacheTime;
+    protected ?string $cacheKey = null;
+    protected ?int $cacheTime = null;
     protected bool $cacheRebuild = false;
 
     /** @var array|bool */
@@ -37,8 +37,6 @@ class DbQuery
 
     /**
      * @param string|DbQuery $alias
-     * @param DbConnection   $connection
-     * @param DbConfig       $config
      */
     public function __construct($alias, DbConnection $connection, DbConfig $config)
     {
@@ -85,9 +83,6 @@ class DbQuery
 
     /**
      * @param array|string $fields
-     * @param string|null  $options
-     *
-     * @return static
      */
     public function select($fields = null, ?string $options = null): DbQuery
     {
@@ -161,14 +156,9 @@ class DbQuery
     }
 
     /**
-     * @param string $table
-     * @param string $alias
-     * @param array  $relationStatement
-     * @param string $type              Allow types: INNER (default), LEFT, RIGHT
+     * @param string $type Allow types: INNER (default), LEFT, RIGHT
      *
      * @throws DbException
-     *
-     * @return static
      */
     public function join(string $table, string $alias, array $relationStatement, string $type = 'INNER'): DbQuery
     {
@@ -188,8 +178,6 @@ class DbQuery
      * @param string|null  $purpose   Allow values: JOIN, ORDER BY, GROUP BY, empty (default)
      *
      * @throws DbException
-     *
-     * @return static
      */
     public function index($indexList, string $action = 'USE', ?string $purpose = null): DbQuery
     {
@@ -227,8 +215,6 @@ class DbQuery
 
     /**
      * @param string|array|null $options
-     *
-     * @return static
      */
     public function groupBy($options): DbQuery
     {
@@ -250,8 +236,6 @@ class DbQuery
 
     /**
      * @param string|array $options
-     *
-     * @return static
      */
     public function orderBy($options): DbQuery
     {
@@ -290,13 +274,7 @@ class DbQuery
     }
 
     /**
-     * @param string $key
-     * @param int    $time
-     * @param bool   $isRebuild
-     *
      * @throws DbException
-     *
-     * @return static
      */
     public function setCaching(string $key, int $time, bool $isRebuild = false): DbQuery
     {
@@ -347,8 +325,6 @@ class DbQuery
     }
 
     /**
-     * @param string|null $field
-     *
      * @return bool|array|string|null
      */
     public function getRow(string $field = null)
@@ -389,7 +365,7 @@ class DbQuery
         return $this->connection->getInsertId();
     }
 
-    public function exec()
+    public function exec(): void
     {
         if (null !== $this->result) {
             return;
@@ -403,8 +379,6 @@ class DbQuery
 
     /**
      * @throws DbException
-     *
-     * @return string
      */
     public function getQuery(): string
     {
@@ -594,12 +568,7 @@ class DbQuery
     }
 
     /**
-     * @param string $name
-     * @param string $operator
-     *
      * @throws DbException
-     *
-     * @return string
      */
     protected function prepareFieldStatement(string $name, string $operator = '='): string
     {
@@ -611,12 +580,9 @@ class DbQuery
     }
 
     /**
-     * @param mixed  $value
-     * @param string $operator
+     * @param mixed $value
      *
      * @throws DbException
-     *
-     * @return string
      */
     protected function prepareValueStatement($value, string $operator = '='): string
     {
@@ -658,13 +624,6 @@ class DbQuery
         return $operator.' '.$this->prepareValue($value);
     }
 
-    /**
-     * Подготавливает список полей для SELECT.
-     *
-     * @param array|string $fields
-     *
-     * @return string
-     */
     protected function prepareFields($fields = null): string
     {
         if (null === $fields || '*' === $fields) {
@@ -707,8 +666,6 @@ class DbQuery
      * @param mixed $value
      *
      * @throws DbException
-     *
-     * @return string
      */
     protected function prepareValue($value): string
     {
@@ -750,8 +707,6 @@ class DbQuery
 
     /**
      * @param array|string|null $options
-     *
-     * @return string|null
      */
     protected function prepareOrderByStatement($options): ?string
     {

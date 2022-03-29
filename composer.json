@@ -17,7 +17,7 @@
     "php": "^7.4 || ^8.0",
     "ext-mysqli": "*",
     "symfony/cache-contracts": "^2.0|^3.0",
-    "symfony/framework-bundle": "^5.0|^6.0",
+    "symfony/framework-bundle": "^5.3|^6.0",
     "psr/log": "^3.0"
   },
   "require-dev": {

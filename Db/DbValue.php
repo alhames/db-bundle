@@ -10,9 +10,7 @@ class DbValue
     public bool $isField;
 
     /**
-     * @param mixed  $value
-     * @param string $operator
-     * @param bool   $isField
+     * @param mixed $value
      */
     public function __construct($value, string $operator = '=', bool $isField = false)
     {

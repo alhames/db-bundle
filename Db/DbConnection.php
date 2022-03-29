@@ -35,8 +35,6 @@ class DbConnection
 
     /**
      * @throws ConnectionException
-     *
-     * @return static
      */
     public function connect(): DbConnection
     {
@@ -78,11 +76,6 @@ class DbConnection
         return $this;
     }
 
-    /**
-     * @param CacheInterface|null $cache
-     *
-     * @return static
-     */
     public function setCache(?CacheInterface $cache = null): DbConnection
     {
         $this->cache = $cache;
@@ -90,11 +83,6 @@ class DbConnection
         return $this;
     }
 
-    /**
-     * @param DbQueryFormatterInterface|null $queryFormatter
-     *
-     * @return static
-     */
     public function setQueryFormatter(?DbQueryFormatterInterface $queryFormatter = null): DbConnection
     {
         $this->queryFormatter = $queryFormatter;
@@ -102,11 +90,6 @@ class DbConnection
         return $this;
     }
 
-    /**
-     * @param LoggerInterface|null $logger
-     *
-     * @return static
-     */
     public function setLogger(?LoggerInterface $logger = null): DbConnection
     {
         $this->logger = $logger;
@@ -115,12 +98,7 @@ class DbConnection
     }
 
     /**
-     * @param string      $query
-     * @param string|null $cacheKey
-     * @param int|null    $cacheTime    Timeout in seconds, must be greater than 0.
-     * @param bool        $cacheRebuild
-     *
-     * @return array
+     * @throws ExecutionException
      */
     public function query(string $query, ?string $cacheKey = null, ?int $cacheTime = null, bool $cacheRebuild = false): array
     {
@@ -187,9 +165,6 @@ class DbConnection
         return (int) $countResult[0];
     }
 
-    /**
-     * @return static
-     */
     public function close(): DbConnection
     {
         if ($this->connected) {
@@ -202,9 +177,6 @@ class DbConnection
         return $this;
     }
 
-    /**
-     * @return static
-     */
     public function reconnect(): DbConnection
     {
         return $this->close()->connect();
@@ -259,11 +231,7 @@ class DbConnection
     }
 
     /**
-     * @param string      $query
-     * @param string|null $cacheKey
-     * @param int|null    $cacheTime
-     *
-     * @return array
+     * @throws ExecutionException
      */
     protected function doQuery(string $query, ?string $cacheKey = null, ?int $cacheTime = null): array
     {

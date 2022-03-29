@@ -17,8 +17,6 @@ trait DbManagerAwareTrait
      * @param string|DbQuery $alias
      *
      * @throws DbException
-     *
-     * @return DbQuery
      */
     protected function db($alias): DbQuery
     {

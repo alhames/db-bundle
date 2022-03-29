@@ -77,10 +77,6 @@ class DbQueryTest extends AbstractTestCase
 
     /**
      * @dataProvider provideSelect
-     *
-     * @param string            $expected
-     * @param string|array|null $fields
-     * @param string|null       $options
      */
     public function testSelect(string $expected, $fields = null, ?string $options = null): void
     {
@@ -92,10 +88,6 @@ class DbQueryTest extends AbstractTestCase
     {
         $db = $this->db()->select();
         $expected = ['SELECT *', 'FROM '.$this->getTable().' AS self'];
-        $this->assertDbQuery($db, $expected);
-
-        $db->join('table1', 't1', 'self.id = t1.test_id');
-        $expected[] = 'INNER JOIN '.$this->getTable('table1').' AS `t1` ON (self.id = t1.test_id)';
         $this->assertDbQuery($db, $expected);
 
         $db->join('table2', 't2', ['self.id' => Db::field('t2.test_id'), 't2.type' => 3], 'LEFT');
@@ -273,10 +265,6 @@ class DbQueryTest extends AbstractTestCase
 
     /**
      * @dataProvider provideWhere
-     *
-     * @param string      $expected
-     * @param array|null  $params
-     * @param string|null $statement
      */
     public function testWhere(string $expected, ?array $params = null, ?string $statement = null): void
     {
@@ -307,9 +295,6 @@ class DbQueryTest extends AbstractTestCase
 
     /**
      * @dataProvider provideOrderBy
-     *
-     * @param string            $expected
-     * @param string|array|null $options
      */
     public function testOrderBy(string $expected, $options): void
     {
@@ -334,9 +319,6 @@ class DbQueryTest extends AbstractTestCase
 
     /**
      * @dataProvider provideGroupBy
-     *
-     * @param string            $expected
-     * @param string|array|null $options
      */
     public function testGroupBy(string $expected, $options): void
     {
@@ -561,10 +543,19 @@ class DbQueryTest extends AbstractTestCase
 
     public function testSetCaching(): void
     {
-        $db = $this->db()->select()->setCaching('key', 60, true);
-        $this->assertAttributeSame('key', 'cacheKey', $db);
-        $this->assertAttributeSame(60, 'cacheTime', $db);
-        $this->assertAttributeSame(true, 'cacheRebuild', $db);
+        $data = [
+            'cacheKey' => 'key',
+            'cacheTime' => 60,
+            'cacheRebuild' => true,
+        ];
+        $db = $this->db()->select()->setCaching($data['cacheKey'], $data['cacheTime'], $data['cacheRebuild']);
+        $reflect = new \ReflectionClass($db);
+        
+        foreach ($data as $key => $value) {
+            $prop = $reflect->getProperty($key);
+            $prop->setAccessible(true);
+            $this->assertSame($value, $prop->getValue($db));
+        }
     }
 
     public function testSetCachingException(): void
