@@ -1,0 +1,58 @@
+name: 'PHP Unit Tests'
+
+on:
+  push:
+    branches: ['master']
+  pull_request:
+    branches: ['master']
+
+permissions:
+  contents: 'read'
+
+jobs:
+  build:
+
+    runs-on: "${{ matrix.operating-system }}"
+
+    strategy:
+      fail-fast: false
+      matrix:
+        operating-system: ['ubuntu-latest']
+        php-versions: ['7.4', '8.0', '8.1']
+        phpunit-versions: ['9.5.20']
+
+    name: "PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}"
+
+    steps:
+
+      - name: 'Checkout'
+        uses: 'actions/checkout@v3'
+
+      - name: 'Setup PHP'
+        uses: 'shivammathur/setup-php@v2'
+        with:
+          php-version: "${{ matrix.php-versions }}"
+          coverage: 'none'
+          extensions: 'mysql'
+          tools: "phpunit:${{ matrix.phpunit-versions }}"
+
+      - name: 'Check PHP Version'
+        run: 'php -v'
+
+      - name: 'Check Composer Version'
+        run: 'composer --version'
+
+      - name: 'Validate composer.json and composer.lock'
+        run: 'composer validate --strict'
+
+      - name: 'Composer install'
+        run: 'composer install --prefer-dist --no-progress'
+        
+      - name: 'Start Mysql'
+        run: 'sudo service mysql start'
+        
+      - name: 'Create Database'
+        run: "mysql -uroot -p -e 'CREATE DATABASE test'"
+
+      - name: 'PHPUnit Tests'
+        run: 'composer run-script test'
