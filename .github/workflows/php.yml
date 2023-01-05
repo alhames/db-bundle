@@ -52,7 +52,7 @@ jobs:
         run: 'sudo service mysql start'
         
       - name: 'Create Database'
-        run: "mysql -uroot -p -e 'CREATE DATABASE test'"
+        run: "mysql -uroot -proot -e 'CREATE DATABASE test'"
 
       - name: 'PHPUnit Tests'
         run: 'composer run-script test'
