@@ -5,7 +5,6 @@
   "keywords": ["mysql", "database", "bundle", "symfony"],
   "homepage": "https://github.com/alhames/db-bundle",
   "license": "MIT",
-  "version": "2.0.0",
   "authors": [
     {
       "name": "Pavel Logachev",
@@ -37,5 +36,8 @@
     "exclude-from-classmap": [
       "/Tests/"
     ]
+  },
+  "scripts": {
+    "test": "vendor/bin/phpunit"
   }
 }

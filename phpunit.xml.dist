@@ -12,8 +12,6 @@
   </coverage>
   <php>
     <ini name="error_reporting" value="-1"/>
-    <server name="DB_HOST" value="alhames_db_mysql"/>
-    <server name="DB_PASS" value="test-password"/>
   </php>
   <testsuites>
     <testsuite name="AlhamesDbBundle test suite">
