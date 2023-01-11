@@ -76,6 +76,27 @@ class RequestTest extends AbstractTestCase
     /**
      * @depends testSelect
      */
+    public function testRowCount()
+    {
+        $expectedRowCount = $this->getRowCount();
+
+        $db1 = $this->db()->select(null, Db::CALC_FOUND_ROWS);
+        $result1 = $db1->getRows();
+        $count1 = $db1->getRowCount();
+        $this->assertCount($expectedRowCount, $result1);
+        $this->assertSame($expectedRowCount, $count1);
+
+        // check same things in different order
+        $db2 = $this->db()->select(null, Db::CALC_FOUND_ROWS);
+        $count2 = $db2->getRowCount();
+        $result2 = $db2->getRows();
+        $this->assertCount($expectedRowCount, $result2);
+        $this->assertSame($expectedRowCount, $count2);
+    }
+
+    /**
+     * @depends testSelect
+     */
     public function testUpdate(): void
     {
         $this->db()
