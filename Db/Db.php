@@ -8,6 +8,10 @@ class Db
     public const DISTINCT = 'DISTINCT';
     public const IGNORE = 'IGNORE';
 
+    public const INNER = 'INNER';
+    public const LEFT = 'LEFT';
+    public const RIGHT = 'RIGHT';
+
     /**
      * @param mixed $value
      */

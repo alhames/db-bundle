@@ -301,7 +301,7 @@ use \Alhames\DbBundle\Db\Db;
 
 $result = $container->get('alhames_db.manager')->db('my_table')
     ->select(['self.id'])
-    ->join('your_table', 'y', ['self.value' => Db::field('y.id')], 'LEFT')
+    ->join('your_table', 'y', ['self.value' => Db::field('y.id')], Db::LEFT)
     ->getRows(null, 'id');
 ```
 

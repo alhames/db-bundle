@@ -160,9 +160,9 @@ class DbQuery
      *
      * @throws DbException
      */
-    public function join(string $table, string $alias, array $relationStatement, string $type = 'INNER'): DbQuery
+    public function join(string $table, string $alias, array $relationStatement, string $type = Db::INNER): DbQuery
     {
-        if (!in_array($type, ['INNER', 'LEFT', 'RIGHT'], true)) {
+        if (!in_array($type, [Db::INNER, Db::LEFT, Db::RIGHT], true)) {
             throw new DbException($this->connection->getAlias(), sprintf('Invalid join type "%s"', $type));
         }
 
