@@ -32,8 +32,8 @@ class DbQuery
     protected bool $cacheRebuild = false;
 
     /** @var array|bool */
-    protected $result;
-    protected int $rowCount;
+    protected $result = null;
+    protected ?int $rowCount = null;
 
     /**
      * @param string|DbQuery $alias
