@@ -116,11 +116,12 @@ class RequestTest extends AbstractTestCase
      */
     public function testDelete(): void
     {
-        $this->db()
+        $db = $this->db()
             ->delete()
-            ->where(['id' => 3])
-            ->exec();
-        $this->assertSame(3, $this->getRowCount());
+            ->where(['id' => 3]);
+        $db->exec();
+        $this->assertSame(3, $this->getRowCount()); // remaining rows
+        $this->assertSame(1, $db->getRowCount());   // deleted rows
 
         $name = $this->db()
             ->select('name')
