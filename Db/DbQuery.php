@@ -372,7 +372,7 @@ class DbQuery
         }
 
         $this->result = $this->connection->query($this->getQuery(), $this->cacheKey, $this->cacheTime, $this->cacheRebuild);
-        if ('select' === $this->method && false !== strpos($this->options, Db::CALC_FOUND_ROWS)) {
+        if ('select' === $this->method && false !== strpos($this->options ?? '', Db::CALC_FOUND_ROWS)) {
             $this->rowCount = $this->connection->getFoundRows();
         }
     }
