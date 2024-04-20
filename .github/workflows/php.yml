@@ -18,7 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         operating-system: ['ubuntu-latest']
-        php-versions: ['7.4', '8.0', '8.1', '8.2']
+        php-versions: ['7.4', '8.0', '8.1', '8.2', '8.3']
         phpunit-versions: ['9.5.20']
 
     name: "PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}"
@@ -47,10 +47,10 @@ jobs:
 
       - name: 'Composer install'
         run: 'composer install --prefer-dist --no-progress'
-        
+
       - name: 'Start Mysql'
         run: 'sudo service mysql start'
-        
+
       - name: 'Create Database'
         run: "mysql -uroot -proot -e 'CREATE DATABASE test'"
 
