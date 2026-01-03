@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Alhames\DbBundle\DataCollector;
 
 use Psr\Log\AbstractLogger;
@@ -20,7 +22,7 @@ class DbDataCollector extends AbstractLogger implements DataCollectorInterface
         $this->data[] = array_merge($context, ['query' => $message, 'level' => $level]);
     }
 
-    public function collect(Request $request, Response $response, \Throwable $exception = null)
+    public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
     {
     }
 
@@ -58,7 +60,7 @@ class DbDataCollector extends AbstractLogger implements DataCollectorInterface
         return $this->data;
     }
 
-    public function reset()
+    public function reset(): void
     {
         $this->data = [];
     }

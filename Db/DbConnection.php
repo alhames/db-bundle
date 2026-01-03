@@ -1,16 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Alhames\DbBundle\Db;
 
 use Alhames\DbBundle\Exception\ConnectionException;
 use Alhames\DbBundle\Exception\ExecutionException;
+use Psr\Cache\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 class DbConnection
 {
-    public const CR_SERVER_GONE_ERROR = 2006;
+    public const int CR_SERVER_GONE_ERROR = 2006;
 
     protected array $config;
     protected string $alias;
@@ -98,7 +101,7 @@ class DbConnection
     }
 
     /**
-     * @throws ExecutionException
+     * @throws ExecutionException|InvalidArgumentException
      */
     public function query(string $query, ?string $cacheKey = null, ?int $cacheTime = null, bool $cacheRebuild = false): array
     {
@@ -122,16 +125,14 @@ class DbConnection
             [$result, $connectTime, $queryTime] = $this->doQuery($query, $cacheKey, $cacheTime);
         }
 
-        if (null !== $this->logger) {
-            $this->logger->debug($query, [
-                'alias' => $this->alias,
-                'is_cached' => $isCached,
-                'started_at' => $startTime,
-                'connect_time' => $connectTime,
-                'query_time' => $queryTime,
-                'total_time' => microtime(true) - $startTime,
-            ]);
-        }
+        $this->logger?->debug($query, [
+            'alias' => $this->alias,
+            'is_cached' => $isCached,
+            'started_at' => $startTime,
+            'connect_time' => $connectTime,
+            'query_time' => $queryTime,
+            'total_time' => microtime(true) - $startTime,
+        ]);
 
         return $result;
     }

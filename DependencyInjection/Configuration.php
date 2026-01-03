@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Alhames\DbBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;

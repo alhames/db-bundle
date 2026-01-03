@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Alhames\DbBundle\DependencyInjection\Compiler;
 
 use Alhames\DbBundle\DataCollector\DbDataCollector;
@@ -10,7 +12,7 @@ use Symfony\Component\DependencyInjection\Reference;
 
 class LoggerPass implements CompilerPassInterface
 {
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         $logger = $container->getParameter('alhames_db.logger');
         $container->getParameterBag()->remove('alhames_db.logger');

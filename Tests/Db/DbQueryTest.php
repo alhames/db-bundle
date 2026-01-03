@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Alhames\DbBundle\Tests\Db;
@@ -50,7 +51,7 @@ class DbQueryTest extends AbstractTestCase
         $this->assertDbQuery($db, ['OPTIMIZE TABLE '.$this->getTable()]);
     }
 
-    public function provideSelect(): array
+    public static function provideSelect(): array
     {
         return [
             ['*'],
@@ -128,7 +129,7 @@ class DbQueryTest extends AbstractTestCase
         $this->db()->select()->index('main', 'USE', 'CAT');
     }
 
-    public function provideWhere(): array
+    public static function provideWhere(): array
     {
         return [
             // Test Types
@@ -278,7 +279,7 @@ class DbQueryTest extends AbstractTestCase
         ]);
     }
 
-    public function provideOrderBy(): array
+    public static function provideOrderBy(): array
     {
         return [
             ['`field` DESC', ['field' => 'DESC']],
@@ -308,7 +309,7 @@ class DbQueryTest extends AbstractTestCase
         ]);
     }
 
-    public function provideGroupBy(): array
+    public static function provideGroupBy(): array
     {
         return [
             ['field', 'field'],
@@ -550,7 +551,7 @@ class DbQueryTest extends AbstractTestCase
         ];
         $db = $this->db()->select()->setCaching($data['cacheKey'], $data['cacheTime'], $data['cacheRebuild']);
         $reflect = new \ReflectionClass($db);
-        
+
         foreach ($data as $key => $value) {
             $prop = $reflect->getProperty($key);
             $prop->setAccessible(true);

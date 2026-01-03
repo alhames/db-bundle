@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Alhames\DbBundle\Db;
 
 use Alhames\DbBundle\Exception\DbException;
@@ -14,11 +16,9 @@ trait DbManagerAwareTrait
     }
 
     /**
-     * @param string|DbQuery $alias
-     *
      * @throws DbException
      */
-    protected function db($alias): DbQuery
+    protected function db(string|DbQuery $alias): DbQuery
     {
         return $this->dbm->db($alias);
     }

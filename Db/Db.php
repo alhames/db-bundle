@@ -1,62 +1,45 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Alhames\DbBundle\Db;
 
 class Db
 {
-    public const CALC_FOUND_ROWS = 'SQL_CALC_FOUND_ROWS';
-    public const DISTINCT = 'DISTINCT';
-    public const IGNORE = 'IGNORE';
+    public const string CALC_FOUND_ROWS = 'SQL_CALC_FOUND_ROWS';
+    public const string DISTINCT = 'DISTINCT';
+    public const string IGNORE = 'IGNORE';
 
-    public const INNER = 'INNER';
-    public const LEFT = 'LEFT';
-    public const RIGHT = 'RIGHT';
+    public const string INNER = 'INNER';
+    public const string LEFT = 'LEFT';
+    public const string RIGHT = 'RIGHT';
 
-    /**
-     * @param mixed $value
-     */
-    public static function value(string $operator, $value): DbValue
+    public static function value(string $operator, mixed $value): DbValue
     {
         return new DbValue($value, $operator, false);
     }
 
-    /**
-     * @param mixed $from
-     * @param mixed $to
-     */
-    public static function between($from, $to): DbValue
+    public static function between(mixed $from, mixed $to): DbValue
     {
         return new DbValue([$from, $to], 'BETWEEN', false);
     }
 
-    /**
-     * @param mixed $value
-     */
-    public static function less($value): DbValue
+    public static function less(mixed $value): DbValue
     {
         return new DbValue($value, '<', false);
     }
 
-    /**
-     * @param mixed $value
-     */
-    public static function more($value): DbValue
+    public static function more(mixed $value): DbValue
     {
         return new DbValue($value, '>', false);
     }
 
-    /**
-     * @param mixed $value
-     */
-    public static function not($value): DbValue
+    public static function not(mixed $value): DbValue
     {
         return new DbValue($value, '!=', false);
     }
 
-    /**
-     * @param mixed $value
-     */
-    public static function like($value): DbValue
+    public static function like(mixed $value): DbValue
     {
         return new DbValue($value, 'LIKE', false);
     }

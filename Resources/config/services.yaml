@@ -1,0 +1,18 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  Alhames\DbBundle\Db\DbConfig: ~
+  Alhames\DbBundle\Db\DbManager: ~
+
+  alhames_db.config:
+    alias: 'Alhames\DbBundle\Db\DbConfig'
+  alhames_db.manager:
+    alias: 'Alhames\DbBundle\Db\DbManager'
+    public: true
+
+  Alhames\DbBundle\DataCollector\DbDataCollector:
+    tags:
+      - { name: 'data_collector', template: '@AlhamesDb/Collector/alhames_db.html.twig', id: 'alhames_db', priority: 250 }

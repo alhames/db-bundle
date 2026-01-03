@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Alhames\DbBundle\Db;
 
 use Alhames\DbBundle\Exception\DbException;
@@ -31,14 +33,10 @@ class DbQuery
     protected ?int $cacheTime = null;
     protected bool $cacheRebuild = false;
 
-    /** @var array|bool */
-    protected $result = null;
+    protected array|bool|null $result = null;
     protected ?int $rowCount = null;
 
-    /**
-     * @param string|DbQuery $alias
-     */
-    public function __construct($alias, DbConnection $connection, DbConfig $config)
+    public function __construct(string|DbQuery $alias, DbConnection $connection, DbConfig $config)
     {
         $this->connection = $connection;
         $this->config = $config;
@@ -81,10 +79,7 @@ class DbQuery
         $this->connection->rollback();
     }
 
-    /**
-     * @param array|string $fields
-     */
-    public function select($fields = null, ?string $options = null): DbQuery
+    public function select(array|string|null $fields = null, ?string $options = null): DbQuery
     {
         $this->method = 'select';
         $this->options = $options;
@@ -179,7 +174,7 @@ class DbQuery
      *
      * @throws DbException
      */
-    public function index($indexList, string $action = 'USE', ?string $purpose = null): DbQuery
+    public function index(string|array $indexList, string $action = 'USE', ?string $purpose = null): DbQuery
     {
         if (!in_array($action, ['USE', 'FORCE', 'IGNORE'], true)) {
             throw new DbException($this->connection->getAlias(), sprintf('Invalid action "%s"', $action));
@@ -213,10 +208,7 @@ class DbQuery
         return $this;
     }
 
-    /**
-     * @param string|array|null $options
-     */
-    public function groupBy($options): DbQuery
+    public function groupBy(string|array|null $options): DbQuery
     {
         $this->groupBy = $this->prepareOrderByStatement($options);
 
@@ -234,10 +226,7 @@ class DbQuery
         return $this;
     }
 
-    /**
-     * @param string|array $options
-     */
-    public function orderBy($options): DbQuery
+    public function orderBy(string|array|null $options): DbQuery
     {
         $this->orderBy = $this->prepareOrderByStatement($options);
 
@@ -324,10 +313,7 @@ class DbQuery
         return $data;
     }
 
-    /**
-     * @return bool|array|string|null
-     */
-    public function getRow(string $field = null)
+    public function getRow(?string $field = null): bool|array|string|null
     {
         $this->exec();
 
@@ -372,7 +358,7 @@ class DbQuery
         }
 
         $this->result = $this->connection->query($this->getQuery(), $this->cacheKey, $this->cacheTime, $this->cacheRebuild);
-        if ('select' === $this->method && false !== strpos($this->options ?? '', Db::CALC_FOUND_ROWS)) {
+        if ('select' === $this->method && str_contains($this->options ?? '', Db::CALC_FOUND_ROWS)) {
             $this->rowCount = $this->connection->getFoundRows();
         }
     }
@@ -580,11 +566,9 @@ class DbQuery
     }
 
     /**
-     * @param mixed $value
-     *
      * @throws DbException
      */
-    protected function prepareValueStatement($value, string $operator = '='): string
+    protected function prepareValueStatement(mixed $value, string $operator = '='): string
     {
         if (null === $value) {
             if ('=' === $operator || 'IS' === $operator) {
@@ -624,7 +608,7 @@ class DbQuery
         return $operator.' '.$this->prepareValue($value);
     }
 
-    protected function prepareFields($fields = null): string
+    protected function prepareFields(array|string|null $fields = null): string
     {
         if (null === $fields || '*' === $fields) {
             return '*';
@@ -644,7 +628,7 @@ class DbQuery
             }
 
             return implode(', ', $fieldsArray);
-        } elseif (false === strpos($fields, ',')) {
+        } elseif (!str_contains($fields, ',')) {
             return $this->prepareField($fields);
         }
 
@@ -655,7 +639,7 @@ class DbQuery
     {
         $name = trim($name);
 
-        if (false === strpos($name, '.') && false === strpos($name, '(') && false === strpos($name, ' ')) {
+        if (!str_contains($name, '.') && !str_contains($name, '(') && !str_contains($name, ' ')) {
             $name = '`'.trim($name, '`').'`';
         }
 
@@ -663,11 +647,9 @@ class DbQuery
     }
 
     /**
-     * @param mixed $value
-     *
      * @throws DbException
      */
-    protected function prepareValue($value): string
+    protected function prepareValue(mixed $value): string
     {
         if (is_int($value)) {
             return (string) $value;
@@ -688,7 +670,7 @@ class DbQuery
 
     protected function prepareWhereStatement(array $params): string
     {
-        $parts = []; // todo
+        $parts = [];
 
         foreach ($params as $field => $param) {
             if ($param instanceof DbValue) {
@@ -705,10 +687,7 @@ class DbQuery
         return implode(' AND ', $parts);
     }
 
-    /**
-     * @param array|string|null $options
-     */
-    protected function prepareOrderByStatement($options): ?string
+    protected function prepareOrderByStatement(string|array|null $options): ?string
     {
         if (is_array($options)) {
             $optionsArray = [];

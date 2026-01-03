@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Alhames\DbBundle\DependencyInjection;
 
 use Alhames\DbBundle\Db\DbConfig;
@@ -13,13 +15,13 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 class AlhamesDbExtension extends Extension
 {
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        $loader->load('services.xml');
+        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('services.yaml');
 
         $dbmDefinition = $container->getDefinition(DbManager::class);
         $dbmDefinition->setArgument('$config', $config['connections'] ?? []);

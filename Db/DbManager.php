@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Alhames\DbBundle\Db;
 
 use Alhames\DbBundle\Exception\DbException;
@@ -73,11 +75,9 @@ class DbManager
     }
 
     /**
-     * @param string|DbQuery $alias
-     *
      * @throws DbException
      */
-    public function db($alias): DbQuery
+    public function db(string|DbQuery $alias): DbQuery
     {
         if ($alias instanceof DbQuery) {
             $config = $this->dbConfig->get($alias->getAlias());
