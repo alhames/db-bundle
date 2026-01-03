@@ -8,6 +8,7 @@ use Alhames\DbBundle\Db\Db;
 use Alhames\DbBundle\Db\DbQuery;
 use Alhames\DbBundle\Exception\DbException;
 use Alhames\DbBundle\Tests\AbstractTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class DbQueryTest extends AbstractTestCase
 {
@@ -76,9 +77,7 @@ class DbQueryTest extends AbstractTestCase
         ];
     }
 
-    /**
-     * @dataProvider provideSelect
-     */
+    #[DataProvider('provideSelect')]
     public function testSelect(string $expected, $fields = null, ?string $options = null): void
     {
         $db = $this->db()->select($fields, $options);
@@ -264,9 +263,7 @@ class DbQueryTest extends AbstractTestCase
         ];
     }
 
-    /**
-     * @dataProvider provideWhere
-     */
+    #[DataProvider('provideWhere')]
     public function testWhere(string $expected, ?array $params = null, ?string $statement = null): void
     {
         $db = $this->db()
@@ -294,9 +291,7 @@ class DbQueryTest extends AbstractTestCase
         ];
     }
 
-    /**
-     * @dataProvider provideOrderBy
-     */
+    #[DataProvider('provideOrderBy')]
     public function testOrderBy(string $expected, $options): void
     {
         $db = $this->db()
@@ -318,9 +313,7 @@ class DbQueryTest extends AbstractTestCase
         ];
     }
 
-    /**
-     * @dataProvider provideGroupBy
-     */
+    #[DataProvider('provideGroupBy')]
     public function testGroupBy(string $expected, $options): void
     {
         $db = $this->db()
