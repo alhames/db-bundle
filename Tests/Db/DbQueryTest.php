@@ -547,7 +547,6 @@ class DbQueryTest extends AbstractTestCase
 
         foreach ($data as $key => $value) {
             $prop = $reflect->getProperty($key);
-            $prop->setAccessible(true);
             $this->assertSame($value, $prop->getValue($db));
         }
     }
